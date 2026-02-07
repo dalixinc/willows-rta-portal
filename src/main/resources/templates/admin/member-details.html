@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Details - The Willows RTA Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>Member Details</h1>
+            <div class="user-info">
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members" class="active">Members</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div class="member-details-container">
+            <div class="details-header">
+                <h2 th:text="${member.fullName}">Member Name</h2>
+                <div>
+                    <a th:href="@{/admin/members/edit/{id}(id=${member.id})}" class="btn btn-edit">Edit Member</a>
+                    <a href="/admin/members" class="btn btn-secondary">Back to List</a>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-section">
+                    <h3>Personal Information</h3>
+                    <table class="details-table">
+                        <tr>
+                            <th>Full Name:</th>
+                            <td th:text="${member.fullName}">John Doe</td>
+                        </tr>
+                        <tr>
+                            <th>Flat/Unit Number:</th>
+                            <td th:text="${member.flatNumber}">12A</td>
+                        </tr>
+                        <tr>
+                            <th>Address:</th>
+                            <td th:text="${member.address}">123 Main Street</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td th:text="${member.email}">email@example.com</td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td th:text="${member.phoneNumber}">0123456789</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Membership Status</h3>
+                    <table class="details-table">
+                        <tr>
+                            <th>Leaseholder:</th>
+                            <td>
+                                <span th:if="${member.leaseholder}" class="badge badge-success">Yes</span>
+                                <span th:unless="${member.leaseholder}" class="badge badge-warning">No</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <span th:if="${member.membershipStatus == 'ACTIVE'}" class="badge badge-success" th:text="${member.membershipStatus}">ACTIVE</span>
+                                <span th:if="${member.membershipStatus == 'SUSPENDED'}" class="badge badge-warning" th:text="${member.membershipStatus}">SUSPENDED</span>
+                                <span th:if="${member.membershipStatus == 'TERMINATED'}" class="badge badge-error" th:text="${member.membershipStatus}">TERMINATED</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Preferred Communication:</th>
+                            <td th:text="${member.preferredCommunication}">EMAIL</td>
+                        </tr>
+                        <tr>
+                            <th>Registration Date:</th>
+                            <td th:text="${#temporals.format(member.registrationDate, 'dd MMM yyyy, HH:mm')}">01 Jan 2024, 10:00</td>
+                        </tr>
+                        <tr>
+                            <th>Consent Given:</th>
+                            <td>
+                                <span th:if="${member.consentGiven}" class="badge badge-success">Yes</span>
+                                <span th:unless="${member.consentGiven}" class="badge badge-error">No</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Signature:</th>
+                            <td th:text="${member.signatureData}" class="signature-display">John Doe</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3>Status Management</h3>
+                <form th:action="@{/admin/members/status/{id}(id=${member.id})}" method="post" class="status-form">
+                    <label for="status">Change Membership Status:</label>
+                    <select name="status" id="status" class="input-field">
+                        <option value="ACTIVE" th:selected="${member.membershipStatus == 'ACTIVE'}">Active</option>
+                        <option value="SUSPENDED" th:selected="${member.membershipStatus == 'SUSPENDED'}">Suspended</option>
+                        <option value="TERMINATED" th:selected="${member.membershipStatus == 'TERMINATED'}">Terminated</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </form>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

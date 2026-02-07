@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Registration - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🏘️ The Willows RTA</h1>
+            <h2>Member Registration</h2>
+        </header>
+
+        <div class="registration-container">
+            <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+            <div th:if="${consentError}" class="alert alert-error" th:text="${consentError}"></div>
+
+            <form th:action="@{/register}" th:object="${member}" method="post" class="registration-form">
+                
+                <h3>Member Details</h3>
+
+                <div class="form-group">
+                    <label for="fullName">Full Name: *</label>
+                    <input type="text" id="fullName" th:field="*{fullName}" required class="input-field">
+                    <span th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="error-text"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="flatNumber">Flat/Unit Number: *</label>
+                    <input type="text" id="flatNumber" th:field="*{flatNumber}" required class="input-field">
+                    <span th:if="${#fields.hasErrors('flatNumber')}" th:errors="*{flatNumber}" class="error-text"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Address: *</label>
+                    <textarea id="address" th:field="*{address}" required rows="3" class="input-field"></textarea>
+                    <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="error-text"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address: *</label>
+                    <input type="email" id="email" th:field="*{email}" required class="input-field">
+                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-text"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number: *</label>
+                    <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" required class="input-field">
+                    <span th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="error-text"></span>
+                </div>
+
+                <h3>Leaseholder Status</h3>
+
+                <div class="form-group">
+                    <label>Are you the leaseholder of this property? *</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" th:field="*{leaseholder}" value="true" required> Yes
+                        </label>
+                        <label>
+                            <input type="radio" th:field="*{leaseholder}" value="false" required> No
+                        </label>
+                    </div>
+                </div>
+
+                <h3>Optional</h3>
+
+                <div class="form-group">
+                    <label>Preferred method of communication:</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" th:field="*{preferredCommunication}" value="EMAIL"> Email
+                        </label>
+                        <label>
+                            <input type="radio" th:field="*{preferredCommunication}" value="PHONE"> Phone
+                        </label>
+                        <label>
+                            <input type="radio" th:field="*{preferredCommunication}" value="POST"> Post
+                        </label>
+                    </div>
+                </div>
+
+                <h3>Consent</h3>
+
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" th:field="*{consentGiven}" required>
+                        I confirm that I wish to become a member of The Willows Recognised Tenants' Association 
+                        and agree to abide by its <a href="/constitution" target="_blank">constitution</a>. *
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="signatureData">Signature (Type your full name): *</label>
+                    <input type="text" id="signatureData" th:field="*{signatureData}" required class="input-field signature-field">
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Submit Registration</button>
+                    <a href="/" class="btn btn-secondary">Cancel</a>
+                </div>
+
+                <p class="text-muted"><small>* Required fields</small></p>
+            </form>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

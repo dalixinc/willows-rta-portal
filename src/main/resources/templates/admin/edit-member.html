@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Member - The Willows RTA Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>Edit Member</h1>
+        </header>
+
+        <div class="edit-member-container">
+            <form th:action="@{/admin/members/update/{id}(id=${member.id})}" 
+                  th:object="${member}" method="post" class="edit-form">
+                
+                <h3>Personal Information</h3>
+
+                <div class="form-group">
+                    <label for="fullName">Full Name:</label>
+                    <input type="text" id="fullName" th:field="*{fullName}" required class="input-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="flatNumber">Flat/Unit Number:</label>
+                    <input type="text" id="flatNumber" th:field="*{flatNumber}" required class="input-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Address:</label>
+                    <textarea id="address" th:field="*{address}" required rows="3" class="input-field"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" th:field="*{email}" required class="input-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number:</label>
+                    <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" required class="input-field">
+                </div>
+
+                <h3>Membership Details</h3>
+
+                <div class="form-group">
+                    <label>Leaseholder Status:</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" th:field="*{leaseholder}" value="true"> Yes
+                        </label>
+                        <label>
+                            <input type="radio" th:field="*{leaseholder}" value="false"> No
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Preferred Communication:</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" th:field="*{preferredCommunication}" value="EMAIL"> Email
+                        </label>
+                        <label>
+                            <input type="radio" th:field="*{preferredCommunication}" value="PHONE"> Phone
+                        </label>
+                        <label>
+                            <input type="radio" th:field="*{preferredCommunication}" value="POST"> Post
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a th:href="@{/admin/members/{id}(id=${member.id})}" class="btn btn-secondary">Cancel</a>
+                    <a href="/admin/members" class="btn btn-info">Back to List</a>
+                </div>
+            </form>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

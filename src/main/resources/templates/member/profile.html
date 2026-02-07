@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>My Profile</h1>
+            <div class="user-info">
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="member-nav">
+            <a href="/member/dashboard">Dashboard</a>
+            <a href="/member/profile" class="active">My Profile</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div class="profile-content">
+            <section class="info-section">
+                <h2>Profile Information</h2>
+                <p>To update your profile information, please contact the committee at <strong>committee@willowsrta.org</strong></p>
+                <p class="text-muted"><em>Note: Member profile management feature coming soon.</em></p>
+            </section>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Willows RTA - Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🏘️ The Willows</h1>
+            <h2>Recognised Tenants' Association</h2>
+        </header>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+        <div class="home-content">
+            <section class="welcome-section">
+                <h3>Welcome to Our Community Portal</h3>
+                <p>The Willows Recognised Tenants' Association represents the interests of leaseholders 
+                   in matters relating to the management, maintenance, and administration of our estate.</p>
+            </section>
+
+            <div class="action-cards">
+                <div class="card">
+                    <h4>📝 New Member Registration</h4>
+                    <p>Join our association and be part of the community voice.</p>
+                    <a href="/register" class="btn btn-primary">Register Now</a>
+                </div>
+
+                <div class="card">
+                    <h4>📋 Our Constitution</h4>
+                    <p>Read our association's constitution and objectives.</p>
+                    <a href="/constitution" class="btn btn-secondary">View Constitution</a>
+                </div>
+
+                <div class="card">
+                    <h4>🔐 Member Login</h4>
+                    <p>Access your member dashboard and profile.</p>
+                    <a href="/login" class="btn btn-info">Login</a>
+                </div>
+            </div>
+
+            <section class="info-section">
+                <h3>Our Objectives</h3>
+                <ul>
+                    <li>Represent the interests of leaseholders in estate management matters</li>
+                    <li>Promote communication and cooperation between members and the landlord/managing agent</li>
+                    <li>Exercise rights granted under relevant legislation</li>
+                    <li>Foster a sense of community among residents</li>
+                </ul>
+            </section>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows Recognised Tenants' Association. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

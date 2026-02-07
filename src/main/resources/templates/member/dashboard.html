@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🏘️ The Willows RTA - Member Dashboard</h1>
+            <div class="user-info">
+                <span>Welcome, <strong th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="member-nav">
+            <a href="/member/dashboard" class="active">Dashboard</a>
+            <a href="/member/profile">My Profile</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div class="member-dashboard-content">
+            <section class="welcome-section">
+                <h2>Welcome to Your Member Portal</h2>
+                <p>You are a registered member of The Willows Recognised Tenants' Association.</p>
+            </section>
+
+            <div class="action-cards">
+                <div class="card">
+                    <h4>👤 My Profile</h4>
+                    <p>View and manage your membership details</p>
+                    <a href="/member/profile" class="btn btn-primary">View Profile</a>
+                </div>
+
+                <div class="card">
+                    <h4>📋 Constitution</h4>
+                    <p>Read our association's constitution</p>
+                    <a href="/constitution" class="btn btn-secondary">View Constitution</a>
+                </div>
+            </div>
+
+            <section class="info-section">
+                <h3>Important Information</h3>
+                <p>As a member of The Willows RTA, you have:</p>
+                <ul>
+                    <li>The right to be consulted on service charges and major works</li>
+                    <li>Access to association meetings and events</li>
+                    <li>The ability to vote on important decisions</li>
+                    <li>Representation in dealings with the landlord/managing agent</li>
+                </ul>
+            </section>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>
