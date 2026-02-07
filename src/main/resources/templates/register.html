@@ -82,6 +82,36 @@
                     </div>
                 </div>
 
+                <h3>Account Setup (Optional)</h3>
+
+                <div class="form-group">
+                    <label>Would you like to create a login account now?</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="createAccount" value="yes" id="createAccountYes" onchange="togglePasswordFields()"> 
+                            Yes - Create my login account now
+                        </label>
+                        <label>
+                            <input type="radio" name="createAccount" value="no" id="createAccountNo" checked onchange="togglePasswordFields()"> 
+                            No - I'll request access from the committee later
+                        </label>
+                    </div>
+                    <p class="text-muted"><small>If you create an account now, you can login immediately. Otherwise, the committee will create your account and contact you.</small></p>
+                </div>
+
+                <div id="passwordFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="password">Choose a Password: *</label>
+                        <input type="password" id="password" name="password" minlength="8" class="input-field">
+                        <small class="text-muted">Minimum 8 characters</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password: *</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" class="input-field">
+                    </div>
+                </div>
+
                 <h3>Consent</h3>
 
                 <div class="form-group checkbox-group">
@@ -110,5 +140,47 @@
             <p>&copy; 2026 The Willows RTA</p>
         </footer>
     </div>
+
+    <script>
+        function togglePasswordFields() {
+            const createAccountYes = document.getElementById('createAccountYes');
+            const passwordFields = document.getElementById('passwordFields');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            
+            if (createAccountYes.checked) {
+                passwordFields.style.display = 'block';
+                passwordInput.required = true;
+                confirmPasswordInput.required = true;
+            } else {
+                passwordFields.style.display = 'none';
+                passwordInput.required = false;
+                confirmPasswordInput.required = false;
+                passwordInput.value = '';
+                confirmPasswordInput.value = '';
+            }
+        }
+
+        // Validate passwords match before submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const createAccountYes = document.getElementById('createAccountYes');
+            if (createAccountYes.checked) {
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    alert('Passwords do not match! Please try again.');
+                    return false;
+                }
+                
+                if (password.length < 8) {
+                    e.preventDefault();
+                    alert('Password must be at least 8 characters long!');
+                    return false;
+                }
+            }
+        });
+    </script>
 </body>
 </html>

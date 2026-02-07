@@ -86,4 +86,21 @@ public class MemberService {
     public long getActiveMemberCount() {
         return memberRepository.findByMembershipStatus("ACTIVE").size();
     }
+
+    // Update member account creation status
+    public Member updateMemberAccountStatus(Long id, boolean hasAccount, String creationMethod) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Member not found with id: " + id));
+        
+        member.setHasUserAccount(hasAccount);
+        member.setAccountCreationMethod(creationMethod);
+        return memberRepository.save(member);
+    }
+
+    // Get members without user accounts
+    public List<Member> getMembersWithoutAccounts() {
+        return memberRepository.findAll().stream()
+                .filter(m -> !m.isHasUserAccount())
+                .toList();
+    }
 }

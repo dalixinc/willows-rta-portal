@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Members - The Willows RTA Admin</title>
+    <title>Members Pending Login Setup - The Willows RTA Admin</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
     <div class="container">
         <header class="site-header">
-            <h1>👥 Member Management</h1>
+            <h1>⚠️ Members Pending Login Setup</h1>
             <div class="user-info">
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-small btn-secondary">Logout</button>
@@ -19,7 +19,8 @@
 
         <nav class="admin-nav">
             <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/members" class="active">Members</a>
+            <a href="/admin/members">All Members</a>
+            <a href="/admin/members/no-accounts" class="active">Pending Logins</a>
             <a href="/constitution">Constitution</a>
         </nav>
 
@@ -27,10 +28,12 @@
         <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
         <div class="members-container">
-            <h2>All Registered Members</h2>
+            <h2>Members Without Login Accounts</h2>
+            <p class="text-muted">These members have registered but don't have login accounts yet. Create accounts for them to grant access to the portal.</p>
 
             <div th:if="${#lists.isEmpty(members)}" class="empty-state">
-                <p>No members registered yet.</p>
+                <p>✅ All members have login accounts!</p>
+                <a href="/admin/members" class="btn btn-secondary">View All Members</a>
             </div>
 
             <div th:unless="${#lists.isEmpty(members)}" class="members-table">
@@ -42,9 +45,6 @@
                             <th>Flat/Unit</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Leaseholder</th>
-                            <th>Has Login</th>
-                            <th>Status</th>
                             <th>Registered</th>
                             <th>Actions</th>
                         </tr>
@@ -56,26 +56,13 @@
                             <td th:text="${member.flatNumber}">12A</td>
                             <td th:text="${member.email}">email@example.com</td>
                             <td th:text="${member.phoneNumber}">0123456789</td>
-                            <td>
-                                <span th:if="${member.leaseholder}" class="badge badge-success">Yes</span>
-                                <span th:unless="${member.leaseholder}" class="badge badge-warning">No</span>
-                            </td>
-                            <td>
-                                <span th:if="${member.hasUserAccount}" class="badge badge-success">✓</span>
-                                <span th:unless="${member.hasUserAccount}" class="badge badge-error">✗</span>
-                            </td>
-                            <td>
-                                <span th:if="${member.membershipStatus == 'ACTIVE'}" class="badge badge-success" th:text="${member.membershipStatus}">ACTIVE</span>
-                                <span th:if="${member.membershipStatus == 'SUSPENDED'}" class="badge badge-warning" th:text="${member.membershipStatus}">SUSPENDED</span>
-                                <span th:if="${member.membershipStatus == 'TERMINATED'}" class="badge badge-error" th:text="${member.membershipStatus}">TERMINATED</span>
-                            </td>
                             <td th:text="${#temporals.format(member.registrationDate, 'dd/MM/yyyy')}">01/01/2024</td>
                             <td class="action-buttons">
-                                <a th:href="@{/admin/members/{id}(id=${member.id})}" class="btn btn-small btn-info">View</a>
-                                <a th:href="@{/admin/members/edit/{id}(id=${member.id})}" class="btn btn-small btn-edit">Edit</a>
-                                <form th:action="@{/admin/members/delete/{id}(id=${member.id})}" method="post" style="display: inline;" 
-                                      onsubmit="return confirm('Are you sure you want to delete this member?');">
-                                    <button type="submit" class="btn btn-small btn-delete">Delete</button>
+                                <a th:href="@{/admin/members/{id}(id=${member.id})}" class="btn btn-small btn-info">View Details</a>
+                                <form th:action="@{/admin/members/create-account/{id}(id=${member.id})}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-small btn-primary" onclick="return confirm('Create login account for ' + [[${member.fullName}]] + '?')">
+                                        Create Login
+                                    </button>
                                 </form>
                             </td>
                         </tr>

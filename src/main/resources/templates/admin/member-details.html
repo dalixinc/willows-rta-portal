@@ -98,6 +98,61 @@
                         </tr>
                     </table>
                 </div>
+
+                <div class="detail-section">
+                    <h3>Login Account Status</h3>
+                    <div th:if="${generatedPassword}" class="alert alert-success">
+                        <strong>✅ Account Created!</strong><br>
+                        <strong>Email/Username:</strong> <span th:text="${memberEmail}">email@example.com</span><br>
+                        <strong>Temporary Password:</strong> <code th:text="${generatedPassword}">password123</code><br>
+                        <small>⚠️ Please share these credentials with the member securely. They should change the password on first login.</small>
+                    </div>
+                    
+                    <table class="details-table">
+                        <tr>
+                            <th>Has Login Account:</th>
+                            <td>
+                                <span th:if="${member.hasUserAccount}" class="badge badge-success">Yes</span>
+                                <span th:unless="${member.hasUserAccount}" class="badge badge-error">No</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${member.hasUserAccount}">
+                            <th>Account Created By:</th>
+                            <td>
+                                <span th:if="${member.accountCreationMethod == 'SELF_REGISTRATION'}">Member (Self-Registration)</span>
+                                <span th:if="${member.accountCreationMethod == 'ADMIN_CREATED'}">Admin</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${member.hasUserAccount}">
+                            <th>Login Username:</th>
+                            <td th:text="${member.email}">email@example.com</td>
+                        </tr>
+                    </table>
+                    
+                    <div th:unless="${member.hasUserAccount}" style="margin-top: 20px;">
+                        <form th:action="@{/admin/members/create-account/{id}(id=${member.id})}" method="post" class="create-account-form">
+                            <h4>Create Login Account</h4>
+                            <p class="text-muted">Generate login credentials for this member</p>
+                            
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="useCustomPassword" onchange="toggleCustomPassword()"> 
+                                    Set custom password (optional)
+                                </label>
+                            </div>
+                            
+                            <div class="form-group" id="customPasswordField" style="display: none;">
+                                <label for="customPassword">Custom Password:</label>
+                                <input type="text" id="customPassword" name="customPassword" class="input-field" minlength="8">
+                                <small class="text-muted">Leave blank to auto-generate a secure password</small>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" onclick="return confirm('Create login account for this member?')">
+                                Create Login Account
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
             <div class="detail-section">
@@ -118,5 +173,22 @@
             <p>&copy; 2026 The Willows RTA</p>
         </footer>
     </div>
+    
+    <script>
+        function toggleCustomPassword() {
+            const checkbox = document.getElementById('useCustomPassword');
+            const field = document.getElementById('customPasswordField');
+            const input = document.getElementById('customPassword');
+            
+            if (checkbox.checked) {
+                field.style.display = 'block';
+                input.required = false; // Optional field
+            } else {
+                field.style.display = 'none';
+                input.value = '';
+                input.required = false;
+            }
+        }
+    </script>
 </body>
 </html>

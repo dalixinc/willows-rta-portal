@@ -302,6 +302,10 @@ textarea.input-field {
     background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
 }
 
+.stat-card.stat-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+}
+
 .stat-card h3 {
     font-size: 3em;
     margin-bottom: 10px;

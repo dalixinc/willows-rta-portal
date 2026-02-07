@@ -34,6 +34,10 @@
                 <h3 th:text="${activeMembers}">0</h3>
                 <p>Active Members</p>
             </div>
+            <div class="stat-card" th:classappend="${membersWithoutAccounts > 0} ? 'stat-warning' : ''">
+                <h3 th:text="${membersWithoutAccounts}">0</h3>
+                <p>Pending Login Setup</p>
+            </div>
             <div class="stat-card">
                 <h3 th:text="${totalMembers - activeMembers}">0</h3>
                 <p>Inactive Members</p>
@@ -47,6 +51,11 @@
                     <h4>👥 View All Members</h4>
                     <p>Manage member registrations and details</p>
                     <a href="/admin/members" class="btn btn-primary">Go to Members</a>
+                </div>
+                <div class="card" th:if="${membersWithoutAccounts > 0}">
+                    <h4>⚠️ Pending Login Setup</h4>
+                    <p th:text="${membersWithoutAccounts} + ' member(s) need login accounts'">0 members need login accounts</p>
+                    <a href="/admin/members/no-accounts" class="btn btn-primary">Create Accounts</a>
                 </div>
                 <div class="card">
                     <h4>📋 Constitution</h4>

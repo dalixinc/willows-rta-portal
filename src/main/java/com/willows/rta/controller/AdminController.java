@@ -1,7 +1,9 @@
 package com.willows.rta.controller;
 
 import com.willows.rta.model.Member;
+import com.willows.rta.model.User;
 import com.willows.rta.service.MemberService;
+import com.willows.rta.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -9,15 +11,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.SecureRandom;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
     private final MemberService memberService;
+    private final UserService userService;
 
     @Autowired
-    public AdminController(MemberService memberService) {
+    public AdminController(MemberService memberService, UserService userService) {
         this.memberService = memberService;
+        this.userService = userService;
     }
 
     // Admin dashboard
@@ -26,6 +32,7 @@ public class AdminController {
         model.addAttribute("username", authentication.getName());
         model.addAttribute("totalMembers", memberService.getTotalMemberCount());
         model.addAttribute("activeMembers", memberService.getActiveMemberCount());
+        model.addAttribute("membersWithoutAccounts", memberService.getMembersWithoutAccounts().size());
         return "admin/dashboard";
     }
 
@@ -34,6 +41,13 @@ public class AdminController {
     public String viewAllMembers(Model model) {
         model.addAttribute("members", memberService.getAllMembers());
         return "admin/members";
+    }
+
+    // View members without accounts
+    @GetMapping("/members/no-accounts")
+    public String viewMembersWithoutAccounts(Model model) {
+        model.addAttribute("members", memberService.getMembersWithoutAccounts());
+        return "admin/members-no-accounts";
     }
 
     // View member details
@@ -84,6 +98,47 @@ public class AdminController {
         }
     }
 
+    // Create user account for member
+    @PostMapping("/members/create-account/{id}")
+    public String createUserAccount(@PathVariable Long id,
+                                   @RequestParam(required = false) String customPassword,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            Member member = memberService.getMemberById(id)
+                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            
+            // Check if account already exists
+            if (member.isHasUserAccount()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "This member already has a user account");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            // Generate password if not provided
+            String password = (customPassword != null && !customPassword.trim().isEmpty()) 
+                ? customPassword 
+                : generateTemporaryPassword();
+            
+            // Create user account
+            User newUser = userService.createUser(member.getEmail(), password, "ROLE_MEMBER");
+            newUser.setMember(member);
+            
+            // Update member record
+            memberService.updateMemberAccountStatus(id, true, "ADMIN_CREATED");
+            
+            // Store password in flash to show to admin
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Login account created successfully!");
+            redirectAttributes.addFlashAttribute("generatedPassword", password);
+            redirectAttributes.addFlashAttribute("memberEmail", member.getEmail());
+            
+            return "redirect:/admin/members/" + id;
+            
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error creating account: " + e.getMessage());
+            return "redirect:/admin/members/" + id;
+        }
+    }
+
     // Delete member
     @PostMapping("/members/delete/{id}")
     public String deleteMember(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -94,5 +149,18 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting member");
         }
         return "redirect:/admin/members";
+    }
+
+    // Helper method to generate temporary password
+    private String generateTemporaryPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder(12);
+        
+        for (int i = 0; i < 12; i++) {
+            password.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        
+        return password.toString();
     }
 }

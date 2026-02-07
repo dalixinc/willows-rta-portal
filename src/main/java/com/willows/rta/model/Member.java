@@ -52,10 +52,17 @@ public class Member {
     @Column(nullable = false)
     private String membershipStatus; // ACTIVE, SUSPENDED, TERMINATED
 
+    @Column(nullable = false)
+    private boolean hasUserAccount = false; // Tracks if login account was created
+
+    @Column
+    private String accountCreationMethod; // SELF_REGISTRATION or ADMIN_CREATED
+
     // Constructors
     public Member() {
         this.registrationDate = LocalDateTime.now();
         this.membershipStatus = "ACTIVE";
+        this.hasUserAccount = false;
     }
 
     // Getters and Setters
@@ -153,5 +160,21 @@ public class Member {
 
     public void setMembershipStatus(String membershipStatus) {
         this.membershipStatus = membershipStatus;
+    }
+
+    public boolean isHasUserAccount() {
+        return hasUserAccount;
+    }
+
+    public void setHasUserAccount(boolean hasUserAccount) {
+        this.hasUserAccount = hasUserAccount;
+    }
+
+    public String getAccountCreationMethod() {
+        return accountCreationMethod;
+    }
+
+    public void setAccountCreationMethod(String accountCreationMethod) {
+        this.accountCreationMethod = accountCreationMethod;
     }
 }

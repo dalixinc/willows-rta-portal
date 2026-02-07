@@ -1,7 +1,9 @@
 package com.willows.rta.controller;
 
 import com.willows.rta.model.Member;
+import com.willows.rta.model.User;
 import com.willows.rta.service.MemberService;
+import com.willows.rta.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,10 +16,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class PublicController {
 
     private final MemberService memberService;
+    private final UserService userService;
 
     @Autowired
-    public PublicController(MemberService memberService) {
+    public PublicController(MemberService memberService, UserService userService) {
         this.memberService = memberService;
+        this.userService = userService;
     }
 
     // Home page
@@ -43,6 +47,9 @@ public class PublicController {
     @PostMapping("/register")
     public String registerMember(@Valid @ModelAttribute Member member, 
                                  BindingResult bindingResult,
+                                 @RequestParam(required = false) String createAccount,
+                                 @RequestParam(required = false) String password,
+                                 @RequestParam(required = false) String confirmPassword,
                                  RedirectAttributes redirectAttributes,
                                  Model model) {
         if (bindingResult.hasErrors()) {
@@ -55,10 +62,52 @@ public class PublicController {
         }
 
         try {
-            memberService.registerMember(member);
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "Registration successful! Please contact the committee to receive your login credentials.");
-            return "redirect:/";
+            // Register the member
+            Member savedMember = memberService.registerMember(member);
+            
+            // Check if user wants to create account now
+            if ("yes".equals(createAccount)) {
+                // Validate passwords
+                if (password == null || password.trim().isEmpty()) {
+                    model.addAttribute("errorMessage", "Password is required when creating an account");
+                    return "register";
+                }
+                
+                if (!password.equals(confirmPassword)) {
+                    model.addAttribute("errorMessage", "Passwords do not match");
+                    return "register";
+                }
+                
+                if (password.length() < 8) {
+                    model.addAttribute("errorMessage", "Password must be at least 8 characters");
+                    return "register";
+                }
+                
+                // Create user account
+                try {
+                    User newUser = userService.createUser(member.getEmail(), password, "ROLE_MEMBER");
+                    newUser.setMember(savedMember);
+                    
+                    // Update member record
+                    savedMember.setHasUserAccount(true);
+                    savedMember.setAccountCreationMethod("SELF_REGISTRATION");
+                    memberService.updateMemberAccountStatus(savedMember.getId(), true, "SELF_REGISTRATION");
+                    
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Registration successful! You can now login with your email and password.");
+                    return "redirect:/login";
+                    
+                } catch (RuntimeException e) {
+                    model.addAttribute("errorMessage", "Account created but login setup failed: " + e.getMessage());
+                    return "register";
+                }
+            } else {
+                // No account created - admin will do it later
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Registration successful! The committee will review your application and contact you with login details.");
+                return "redirect:/";
+            }
+            
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "register";
