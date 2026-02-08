@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Code - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🏘️ The Willows RTA</h1>
+            <h2>Email Verification</h2>
+        </header>
+
+        <div class="login-container">
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+            <div class="otp-info">
+                <h3>🔐 Enter Verification Code</h3>
+                <p>We've sent a 6-digit code to your email address.</p>
+                <p class="text-muted"><small>The code will expire in 10 minutes.</small></p>
+            </div>
+
+            <form th:action="@{/verify-otp}" method="post" class="login-form">
+                <div class="form-group">
+                    <label for="otpCode">Verification Code:</label>
+                    <input type="text" 
+                           id="otpCode" 
+                           name="otpCode" 
+                           required 
+                           class="input-field otp-input" 
+                           maxlength="6" 
+                           pattern="[0-9]{6}"
+                           placeholder="Enter 6-digit code"
+                           autocomplete="one-time-code"
+                           autofocus>
+                    <small class="text-muted">Enter the 6-digit code from your email</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Verify & Login</button>
+            </form>
+
+            <div class="otp-actions">
+                <form th:action="@{/resend-otp}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-secondary">Resend Code</button>
+                </form>
+                <a href="/login" class="btn btn-info">Back to Login</a>
+            </div>
+
+            <div class="security-note">
+                <p><small>🔒 <strong>Security Notice:</strong> Never share your verification code with anyone. 
+                The Willows RTA will never ask for your code via phone or email.</small></p>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+
+    <script>
+        // Auto-submit when 6 digits are entered
+        document.getElementById('otpCode').addEventListener('input', function(e) {
+            const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            e.target.value = value;
+            
+            if (value.length === 6) {
+                // Optional: auto-submit when 6 digits entered
+                // this.form.submit();
+            }
+        });
+
+        // Format input to only accept numbers
+        document.getElementById('otpCode').addEventListener('keypress', function(e) {
+            if (e.key && !/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

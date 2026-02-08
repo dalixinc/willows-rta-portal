@@ -23,6 +23,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public pages
                 .requestMatchers("/", "/register", "/constitution", "/css/**", "/js/**", "/documents/**").permitAll()
+                // Login and OTP authentication endpoints - must be public
+                .requestMatchers("/login", "/login-with-otp", "/verify-otp", "/resend-otp").permitAll()
                 // Admin-only pages
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Member pages (both admin and members can access)
@@ -30,14 +32,14 @@ public class SecurityConfig {
                 // All other pages require authentication
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/dashboard", true)
-                .permitAll()
-            )
+            // Disable form login - we're using custom OTP authentication
+            .formLogin(form -> form.disable())
             .logout(logout -> logout
                 .logoutSuccessUrl("/")
                 .permitAll()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/login-with-otp", "/verify-otp", "/resend-otp")
             );
 
         return http.build();

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.SecureRandom;
+import java.util.Optional; 
 
 @Controller
 @RequestMapping("/admin")
@@ -143,10 +144,22 @@ public class AdminController {
     @PostMapping("/members/delete/{id}")
     public String deleteMember(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
+            Member member = memberService.getMemberById(id)
+                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            
+            // If member has a user account, delete it first
+            if (member.isHasUserAccount()) {
+                Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
+                if (userOpt.isPresent()) {
+                    userService.deleteUser(userOpt.get().getId());
+                }
+            }
+            
+            // Now delete the member
             memberService.deleteMember(id);
             redirectAttributes.addFlashAttribute("successMessage", "Member deleted successfully");
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting member");
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting member: " + e.getMessage());
         }
         return "redirect:/admin/members";
     }

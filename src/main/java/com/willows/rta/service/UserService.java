@@ -72,4 +72,9 @@ public class UserService implements UserDetailsService {
     public boolean usernameExists(String username) {
         return userRepository.existsByUsername(username);
     }
+
+    // Delete user by ID
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
 }
