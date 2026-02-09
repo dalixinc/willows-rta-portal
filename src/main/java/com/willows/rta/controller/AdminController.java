@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.SecureRandom;
-import java.util.Optional; 
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members Directory - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>👥 Members Directory</h1>
+            <div class="user-info">
+                <span>Welcome, <span th:text="${username}">User</span></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="member-nav">
+            <a href="/member/dashboard">Dashboard</a>
+            <a href="/member/directory" class="active">Members Directory</a>
+            <a href="/member/profile">My Profile</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div class="directory-container">
+            <div class="directory-header">
+                <h2>Association Members</h2>
+                <p class="text-muted">Connect with fellow members of The Willows RTA</p>
+            </div>
+
+            <div class="privacy-notice">
+                <p><small>🔒 <strong>Privacy Notice:</strong> This directory shows limited contact information for verified members only. 
+                Phone numbers and full addresses are kept private.</small></p>
+            </div>
+
+            <div class="members-directory-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Flat/Unit</th>
+                            <th>Email</th>
+                            <th>Leaseholder</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="member : ${members}">
+                            <td th:text="${member.fullName}">John Doe</td>
+                            <td th:text="${member.flatNumber}">12A</td>
+                            <td>
+                                <a th:href="'mailto:' + ${member.email}" th:text="${member.email}">email@example.com</a>
+                            </td>
+                            <td>
+                                <span th:if="${member.leaseholder}" class="badge badge-success">Yes</span>
+                                <span th:unless="${member.leaseholder}" class="badge badge-info">No</span>
+                            </td>
+                            <td>
+                                <span th:if="${member.membershipStatus == 'ACTIVE'}" class="badge badge-success">Active</span>
+                                <span th:if="${member.membershipStatus == 'SUSPENDED'}" class="badge badge-warning">Suspended</span>
+                                <span th:if="${member.membershipStatus == 'TERMINATED'}" class="badge badge-error">Terminated</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="directory-footer">
+                <p class="text-muted">
+                    <small>Showing <strong th:text="${members.size()}">0</strong> active members. 
+                    To update your contact details, please contact the committee.</small>
+                </p>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -30,12 +30,6 @@ public class PublicController {
         return "index";
     }
 
-    // Login page
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
-
     // Registration page
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {

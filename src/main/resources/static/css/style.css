@@ -693,3 +693,133 @@ tbody tr:hover {
         gap: 10px;
     }
 }
+
+/* Password Change Page */
+.password-change-container {
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+.password-form {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+}
+
+.password-requirements {
+    background: #e7f3ff;
+    border-left: 4px solid #2196F3;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.password-requirements h4 {
+    margin-top: 0;
+    color: #2196F3;
+}
+
+.password-requirements ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.security-tips {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 4px;
+}
+
+.security-tips h3 {
+    margin-top: 0;
+    color: #856404;
+}
+
+.security-tips ul {
+    padding-left: 20px;
+}
+
+/* Members Directory */
+.directory-container {
+    margin: 40px 0;
+}
+
+.directory-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.privacy-notice {
+    background: #e7f3ff;
+    border-left: 4px solid #2196F3;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.members-directory-table {
+    margin: 30px 0;
+    overflow-x: auto;
+}
+
+.members-directory-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.members-directory-table th,
+.members-directory-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.members-directory-table th {
+    background-color: #2E7D32;
+    color: white;
+    font-weight: bold;
+}
+
+.members-directory-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.directory-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* Member Navigation */
+.member-nav {
+    background: #2E7D32;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.member-nav a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.member-nav a:hover,
+.member-nav a.active {
+    background: rgba(255, 255, 255, 0.2);
+}

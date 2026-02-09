@@ -77,4 +77,13 @@ public class UserService implements UserDetailsService {
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }
+
+    // Update user password
+    public void updatePassword(Long userId, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 }

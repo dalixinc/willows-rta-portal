@@ -36,12 +36,12 @@
                     <input type="password" id="password" name="password" required class="input-field" autocomplete="current-password">
                 </div>
 
-                <div class="info-box">
+                <div class="info-box" th:if="${mfaEnabled}">
                     <p>🔐 <strong>Two-Factor Authentication Enabled</strong></p>
                     <p><small>After entering your password, a verification code will be sent to your email.</small></p>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block">Continue to Verification</button>
+                <button type="submit" class="btn btn-primary btn-block" th:text="${mfaEnabled} ? 'Continue to Verification' : 'Login'">Login</button>
             </form>
 
             <div class="login-help">

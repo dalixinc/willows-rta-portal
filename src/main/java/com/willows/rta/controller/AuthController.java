@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -29,6 +30,9 @@ public class AuthController {
     private final OtpService otpService;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${app.mfa.enabled:true}")
+    private boolean mfaEnabled;
+
     @Autowired
     public AuthController(UserService userService, OtpService otpService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
@@ -36,10 +40,18 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // Login page
+    @GetMapping("/login")
+    public String login(Model model) {
+        model.addAttribute("mfaEnabled", mfaEnabled);
+        return "login";
+    }
+
     @PostMapping("/login-with-otp")
     public String loginWithOtp(@RequestParam String username,
                               @RequestParam String password,
                               HttpSession session,
+                              HttpServletRequest request,
                               RedirectAttributes redirectAttributes,
                               Model model) {
         
@@ -59,7 +71,32 @@ public class AuthController {
             return "redirect:/login";
         }
 
-        // Password correct - generate and send OTP
+        // If MFA is disabled, login directly
+        if (!mfaEnabled) {
+            System.out.println("MFA is disabled - logging in directly");
+            
+            // Create authentication token
+            UsernamePasswordAuthenticationToken authentication = 
+                new UsernamePasswordAuthenticationToken(
+                    username,
+                    null,
+                    Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
+                );
+            
+            authentication.setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource().buildDetails(request));
+            
+            // Set authentication in security context
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+            
+            // Save to session
+            session.setAttribute("SPRING_SECURITY_CONTEXT", context);
+            
+            return "redirect:/dashboard";
+        }
+
+        // MFA is enabled - proceed with OTP
         String email = user.getMember() != null ? user.getMember().getEmail() : username;
         otpService.generateAndSendOtp(username, email);
 

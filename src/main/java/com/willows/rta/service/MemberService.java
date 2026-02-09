@@ -109,4 +109,9 @@ public class MemberService {
                 .filter(m -> !m.isHasUserAccount())
                 .toList();
     }
+
+    // Get members by status
+    public List<Member> getMembersByStatus(String status) {
+    	return memberRepository.findByMembershipStatus(status);
+    }
 }
