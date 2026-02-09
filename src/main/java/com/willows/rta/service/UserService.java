@@ -50,6 +50,12 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setRole(role);
         user.setEnabled(true);
+        
+        // If role is MEMBER, require password change on first login
+        // (assumes admin created the account with temporary password)
+        if ("ROLE_MEMBER".equals(role)) {
+            user.setPasswordChangeRequired(true);
+        }
 
         return userRepository.save(user);
     }
@@ -84,6 +90,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordChangeRequired(false); // Clear the flag after password change
         userRepository.save(user);
     }
 }

@@ -93,6 +93,11 @@ public class AuthController {
             // Save to session
             session.setAttribute("SPRING_SECURITY_CONTEXT", context);
             
+            // Check if password change is required
+            if (user.isPasswordChangeRequired()) {
+                return "redirect:/member/change-password?required=true";
+            }
+            
             return "redirect:/dashboard";
         }
 
@@ -185,6 +190,11 @@ public class AuthController {
                 // Clear OTP session data
                 session.removeAttribute("otp_username");
                 session.removeAttribute("otp_timestamp");
+                
+                // Check if password change is required
+                if (user.isPasswordChangeRequired()) {
+                    return "redirect:/member/change-password?required=true";
+                }
                 
                 // Redirect to dashboard
                 return "redirect:/dashboard";

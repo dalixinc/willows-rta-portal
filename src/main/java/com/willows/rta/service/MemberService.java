@@ -112,6 +112,6 @@ public class MemberService {
 
     // Get members by status
     public List<Member> getMembersByStatus(String status) {
-    	return memberRepository.findByMembershipStatus(status);
+        return memberRepository.findByMembershipStatus(status);
     }
 }
