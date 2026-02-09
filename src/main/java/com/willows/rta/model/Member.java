@@ -58,6 +58,16 @@ public class Member {
     @Column
     private String accountCreationMethod; // SELF_REGISTRATION or ADMIN_CREATED
 
+    // Transient fields for displaying user account status in admin views
+    @Transient
+    private Boolean userEnabled;
+    
+    @Transient
+    private Boolean userAccountLocked;
+    
+    @Transient
+    private Integer userFailedAttempts;
+
     // Constructors
     public Member() {
         this.registrationDate = LocalDateTime.now();
@@ -176,5 +186,29 @@ public class Member {
 
     public void setAccountCreationMethod(String accountCreationMethod) {
         this.accountCreationMethod = accountCreationMethod;
+    }
+
+    public Boolean getUserEnabled() {
+        return userEnabled;
+    }
+
+    public void setUserEnabled(Boolean userEnabled) {
+        this.userEnabled = userEnabled;
+    }
+
+    public Boolean getUserAccountLocked() {
+        return userAccountLocked;
+    }
+
+    public void setUserAccountLocked(Boolean userAccountLocked) {
+        this.userAccountLocked = userAccountLocked;
+    }
+
+    public Integer getUserFailedAttempts() {
+        return userFailedAttempts;
+    }
+
+    public void setUserFailedAttempts(Integer userFailedAttempts) {
+        this.userFailedAttempts = userFailedAttempts;
     }
 }

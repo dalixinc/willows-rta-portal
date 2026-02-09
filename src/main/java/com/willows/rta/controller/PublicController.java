@@ -6,6 +6,7 @@ import com.willows.rta.service.MemberService;
 import com.willows.rta.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +18,9 @@ public class PublicController {
 
     private final MemberService memberService;
     private final UserService userService;
+
+    @Value("${app.self-registration.enabled:true}")
+    private boolean selfRegistrationEnabled;
 
     @Autowired
     public PublicController(MemberService memberService, UserService userService) {
@@ -34,6 +38,7 @@ public class PublicController {
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         model.addAttribute("member", new Member());
+        model.addAttribute("selfRegistrationEnabled", selfRegistrationEnabled);
         return "register";
     }
 
@@ -59,21 +64,31 @@ public class PublicController {
             // Register the member
             Member savedMember = memberService.registerMember(member);
             
-            // Check if user wants to create account now
+            // Check if self-registration is enabled and user wants to create account now
             if ("yes".equals(createAccount)) {
+                // Check if self-registration is allowed
+                if (!selfRegistrationEnabled) {
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Registration successful! An administrator will create your login credentials and contact you.");
+                    return "redirect:/";
+                }
+                
                 // Validate passwords
                 if (password == null || password.trim().isEmpty()) {
                     model.addAttribute("errorMessage", "Password is required when creating an account");
+                    model.addAttribute("selfRegistrationEnabled", selfRegistrationEnabled);
                     return "register";
                 }
                 
                 if (!password.equals(confirmPassword)) {
                     model.addAttribute("errorMessage", "Passwords do not match");
+                    model.addAttribute("selfRegistrationEnabled", selfRegistrationEnabled);
                     return "register";
                 }
                 
                 if (password.length() < 8) {
                     model.addAttribute("errorMessage", "Password must be at least 8 characters");
+                    model.addAttribute("selfRegistrationEnabled", selfRegistrationEnabled);
                     return "register";
                 }
                 

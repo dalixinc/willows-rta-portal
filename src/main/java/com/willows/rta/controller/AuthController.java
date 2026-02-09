@@ -85,7 +85,17 @@ public class AuthController {
             // Record failed login attempt
             userService.recordFailedLoginAttempt(username);
             
-            int remainingAttempts = 5 - (user.getFailedLoginAttempts() + 1);
+            // Refresh user to get updated failed attempts count and lock status
+            user = userService.getUserByUsername(username).get();
+            
+            // Check if account just got locked
+            if (user.isAccountLocked()) {
+                redirectAttributes.addFlashAttribute("error", 
+                    "Account locked due to multiple failed login attempts. Please try again in 15 minutes or contact an administrator.");
+                return "redirect:/login";
+            }
+            
+            int remainingAttempts = 5 - user.getFailedLoginAttempts();
             if (remainingAttempts > 0 && remainingAttempts <= 3) {
                 redirectAttributes.addFlashAttribute("error", 
                     "Invalid username or password. " + remainingAttempts + " attempts remaining before account lock.");

@@ -31,6 +31,9 @@ The option that members can set up a password themselves must be a toggle - we m
 
 Indicate that account is locked in the admin viewed members list
 
+
+Has login indicates yess even if they don't
+
 ======================================================================
 
 login button should also respond to enter pressed

@@ -19,6 +19,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.0.1] - 2026-02-09
+
+### Fixed
+- **Login Lockout Timing**: Account now properly locks for 15 minutes on 5th failed attempt (not before)
+- Lockout check now happens AFTER recording failed attempt, not before
+- User object refreshed after recording attempt to get correct lock status
+
+### Added
+- **Self-Registration Toggle**: Admins can control whether members can create own accounts
+- **Account Status Column**: Members list now shows account lock status
+- Account status indicators: 🔒 Locked, ⏱️ Temp Lock, X fails, Active
+
+**Configuration:**
+```properties
+app.self-registration.enabled=true  # Members can create accounts
+app.self-registration.enabled=false # Only admins create accounts
+```
+
+**Files Modified:**
+- `application.properties` - Added self-registration toggle
+- `PublicController.java` - Added toggle check and validation
+- `register.html` - Conditional display of account creation
+- `AdminController.java` - Populate user status in members list
+- `Member.java` - Added transient fields for user status display
+- `admin/members.html` - Added Account Status column
+- `AuthController.java` - Fixed lockout timing logic
+- `CONFIGURATION.md` - Documented self-registration toggle
+- `QUICK_REFERENCE.md` - Added self-registration to quick ref
+- `CHANGELOG.md` - This update
+
+---
+
 ## [1.0.0] - 2026-02-09
 
 ### 🎉 Initial Release
@@ -584,6 +616,20 @@ This is the initial 1.0.0 release. Future breaking changes will be documented he
 ---
 
 ## Configuration Changes by Version
+
+### 1.0.1 (2026-02-09)
+**Added Properties:**
+```properties
+# Self-Registration Control
+app.self-registration.enabled=true
+```
+
+**Added Database Fields:**
+- `Member` transient fields: `userEnabled`, `userAccountLocked`, `userFailedAttempts` (display only, not stored)
+
+**No breaking changes** - fully backward compatible
+
+---
 
 ### 1.0.0 (2026-02-09)
 **Added Properties:**

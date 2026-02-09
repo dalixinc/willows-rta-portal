@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -40,7 +41,22 @@ public class AdminController {
     // View all members
     @GetMapping("/members")
     public String viewAllMembers(Model model) {
-        model.addAttribute("members", memberService.getAllMembers());
+        List<Member> members = memberService.getAllMembers();
+        
+        // Populate user status for each member
+        for (Member member : members) {
+            if (member.isHasUserAccount()) {
+                Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
+                if (userOpt.isPresent()) {
+                    User user = userOpt.get();
+                    member.setUserEnabled(user.isEnabled());
+                    member.setUserAccountLocked(user.isAccountLocked());
+                    member.setUserFailedAttempts(user.getFailedLoginAttempts());
+                }
+            }
+        }
+        
+        model.addAttribute("members", members);
         return "admin/members";
     }
 

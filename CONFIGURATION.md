@@ -97,6 +97,45 @@ app.mfa.enabled=true
 
 ---
 
+## 👥 Self-Registration Control
+
+### Location: `src/main/resources/application.properties`
+
+```properties
+# Enable/disable self-registration (members creating own login accounts)
+app.self-registration.enabled=true
+```
+
+**Options:**
+- `true` = Members can create login accounts during registration (open)
+- `false` = Only admins can create accounts (requires approval)
+
+**When `true` (Open Registration):**
+- Registration page shows "Account Setup" option
+- Member can choose to create account immediately
+- Or wait for admin to create it later
+- Faster onboarding
+
+**When `false` (Admin Approval):**
+- Registration page shows admin review notice
+- Member only submits application
+- No account creation option shown
+- Admin must create all accounts manually
+- Better for security/vetting
+
+**Use `true` when:**
+- You trust new members
+- Want quick onboarding
+- Small, tight-knit community
+
+**Use `false` when:**
+- Need to vet new members
+- Require approval process
+- High-security requirements
+- Want to verify identity first
+
+---
+
 ## 🔒 Login Security Settings
 
 ### Location: `src/main/java/com/willows/rta/service/UserService.java`

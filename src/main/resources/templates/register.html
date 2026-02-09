@@ -82,34 +82,44 @@
                     </div>
                 </div>
 
-                <h3>Account Setup (Optional)</h3>
+                <!-- Account Setup Section (only if self-registration enabled) -->
+                <div th:if="${selfRegistrationEnabled}">
+                    <h3>Account Setup (Optional)</h3>
 
-                <div class="form-group">
-                    <label>Would you like to create a login account now?</label>
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="createAccount" value="yes" id="createAccountYes" onchange="togglePasswordFields()"> 
-                            Yes - Create my login account now
-                        </label>
-                        <label>
-                            <input type="radio" name="createAccount" value="no" id="createAccountNo" checked onchange="togglePasswordFields()"> 
-                            No - I'll request access from the committee later
-                        </label>
+                    <div class="form-group">
+                        <label>Would you like to create a login account now?</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="createAccount" value="yes" id="createAccountYes" onchange="togglePasswordFields()"> 
+                                Yes - Create my login account now
+                            </label>
+                            <label>
+                                <input type="radio" name="createAccount" value="no" id="createAccountNo" checked onchange="togglePasswordFields()"> 
+                                No - I'll request access from the committee later
+                            </label>
+                        </div>
+                        <p class="text-muted"><small>If you create an account now, you can login immediately. Otherwise, the committee will create your account and contact you.</small></p>
                     </div>
-                    <p class="text-muted"><small>If you create an account now, you can login immediately. Otherwise, the committee will create your account and contact you.</small></p>
+
+                    <div id="passwordFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="password">Choose a Password: *</label>
+                            <input type="password" id="password" name="password" minlength="8" class="input-field">
+                            <small class="text-muted">Minimum 8 characters</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password: *</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" class="input-field">
+                        </div>
+                    </div>
                 </div>
 
-                <div id="passwordFields" style="display: none;">
-                    <div class="form-group">
-                        <label for="password">Choose a Password: *</label>
-                        <input type="password" id="password" name="password" minlength="8" class="input-field">
-                        <small class="text-muted">Minimum 8 characters</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm Password: *</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" class="input-field">
-                    </div>
+                <!-- Admin Review Notice (shown when self-registration disabled) -->
+                <div th:unless="${selfRegistrationEnabled}" class="info-box" style="margin: 20px 0;">
+                    <h3>Account Creation</h3>
+                    <p><strong>ℹ️ Login credentials will be created by an administrator</strong></p>
+                    <p>After registration, an administrator will review your application and create your login credentials. You will be contacted via email once your account is ready.</p>
                 </div>
 
                 <h3>Consent</h3>

@@ -44,7 +44,8 @@
                             <th>Phone</th>
                             <th>Leaseholder</th>
                             <th>Has Login</th>
-                            <th>Status</th>
+                            <th>Account Status</th>
+                            <th>Membership</th>
                             <th>Registered</th>
                             <th>Actions</th>
                         </tr>
@@ -63,6 +64,14 @@
                             <td>
                                 <span th:if="${member.hasUserAccount}" class="badge badge-success">✓</span>
                                 <span th:unless="${member.hasUserAccount}" class="badge badge-error">✗</span>
+                            </td>
+                            <td>
+                                <!-- Account Status Column -->
+                                <span th:if="${!member.hasUserAccount}" class="badge badge-secondary">-</span>
+                                <span th:if="${member.hasUserAccount && member.userEnabled != null && !member.userEnabled}" class="badge badge-error">🔒 Locked</span>
+                                <span th:if="${member.hasUserAccount && member.userEnabled != null && member.userEnabled && member.userAccountLocked}" class="badge badge-warning">⏱️ Temp Lock</span>
+                                <span th:if="${member.hasUserAccount && member.userEnabled != null && member.userEnabled && !member.userAccountLocked && member.userFailedAttempts != null && member.userFailedAttempts > 0}" class="badge badge-warning" th:text="${member.userFailedAttempts} + ' fails'">3 fails</span>
+                                <span th:if="${member.hasUserAccount && member.userEnabled != null && member.userEnabled && !member.userAccountLocked && (member.userFailedAttempts == null || member.userFailedAttempts == 0)}" class="badge badge-success">Active</span>
                             </td>
                             <td>
                                 <span th:if="${member.membershipStatus == 'ACTIVE'}" class="badge badge-success" th:text="${member.membershipStatus}">ACTIVE</span>

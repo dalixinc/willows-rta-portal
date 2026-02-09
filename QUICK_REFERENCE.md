@@ -21,7 +21,14 @@ app.mfa.enabled=true   # OTP required (recommended)
 ```
 ⚠️ Requires database reset with H2 when changing
 
-### 3. Email Provider Setup
+### 3. Enable/Disable Self-Registration
+**File:** `application.properties`
+```properties
+app.self-registration.enabled=true   # Members can create own accounts
+app.self-registration.enabled=false  # Only admins create accounts (approval required)
+```
+
+### 4. Email Provider Setup
 **File:** `application.properties`
 
 **SendGrid (Recommended):**
@@ -112,11 +119,12 @@ spring.jpa.show-sql=false
 | What | File | Line(s) |
 |------|------|---------|
 | MFA On/Off | `application.properties` | ~8 |
-| Email On/Off | `application.properties` | ~25 |
-| Email Provider | `application.properties` | ~10-24 |
+| Self-Reg On/Off | `application.properties` | ~14 |
+| Email On/Off | `application.properties` | ~28 |
+| Email Provider | `application.properties` | ~13-27 |
 | Server Port | `application.properties` | ~4 |
-| Failed Login Max | `UserService.java` | ~107 |
-| Lockout Duration | `UserService.java` | ~108 |
+| Failed Login Max | `UserService.java` | ~110 |
+| Lockout Duration | `UserService.java` | ~111 |
 | Password Min | `PasswordResetController.java` | ~49 |
 | OTP Duration | `OtpService.java` | ~16 |
 | OTP Length | `OtpService.java` | ~17 |
