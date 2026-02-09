@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Member - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🏘️ The Willows RTA</h1>
+            <h2>Add New Member</h2>
+            <div class="user-info">
+                <span>Logged in as: <strong class="admin-username" th:text="${#authentication.name}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members">Members</a>
+            <a href="/admin/members/add" class="active">Add Member</a>
+        </nav>
+
+        <div class="content">
+            <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+            <div class="form-card">
+                <h3>Member Information</h3>
+                <p class="text-muted">Add a new member manually (e.g., from paper form or email registration)</p>
+
+                <form th:action="@{/admin/members/add}" method="post" th:object="${member}">
+                    
+                    <h4>Personal Details</h4>
+
+                    <div class="form-group">
+                        <label for="fullName">Full Name: *</label>
+                        <input type="text" id="fullName" th:field="*{fullName}" required class="input-field" autofocus>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address: *</label>
+                        <input type="email" id="email" th:field="*{email}" required class="input-field">
+                        <small class="text-muted">Must be unique</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number: *</label>
+                        <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" required class="input-field">
+                    </div>
+
+                    <h4>Address Information</h4>
+
+                    <div class="form-group">
+                        <label for="address">Full Address: *</label>
+                        <input type="text" id="address" th:field="*{address}" required class="input-field">
+                        <small class="text-muted">Street address for The Willows property</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="flatNumber">Flat/Unit Number: *</label>
+                        <input type="text" id="flatNumber" th:field="*{flatNumber}" required class="input-field">
+                    </div>
+
+                    <h4>Membership Details</h4>
+
+                    <div class="form-group">
+                        <label>Leaseholder: *</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" th:field="*{leaseholder}" value="true"> Yes
+                            </label>
+                            <label>
+                                <input type="radio" th:field="*{leaseholder}" value="false" checked> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="membershipStatus">Membership Status: *</label>
+                        <select id="membershipStatus" th:field="*{membershipStatus}" class="input-field">
+                            <option value="ACTIVE">Active</option>
+                            <option value="SUSPENDED">Suspended</option>
+                            <option value="TERMINATED">Terminated</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preferred Communication Method:</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" th:field="*{preferredCommunication}" value="EMAIL" checked> Email
+                            </label>
+                            <label>
+                                <input type="radio" th:field="*{preferredCommunication}" value="PHONE"> Phone
+                            </label>
+                            <label>
+                                <input type="radio" th:field="*{preferredCommunication}" value="POST"> Post
+                            </label>
+                        </div>
+                    </div>
+
+                    <h4>Account Setup (Optional)</h4>
+
+                    <div class="form-group">
+                        <label>Create login account now?</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="createAccount" value="yes" id="createAccountYes" onchange="togglePasswordFields()"> 
+                                Yes - Create login account
+                            </label>
+                            <label>
+                                <input type="radio" name="createAccount" value="no" id="createAccountNo" checked onchange="togglePasswordFields()"> 
+                                No - Create account later
+                            </label>
+                        </div>
+                        <p class="text-muted"><small>If you create an account now, you can either set a password or have the system generate one.</small></p>
+                    </div>
+
+                    <div id="passwordFields" style="display: none;">
+                        <div class="form-group">
+                            <label>Password Option:</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="passwordOption" value="auto" checked onchange="togglePasswordInput()"> 
+                                    Auto-generate secure password
+                                </label>
+                                <label>
+                                    <input type="radio" name="passwordOption" value="manual" onchange="togglePasswordInput()"> 
+                                    Set password manually
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="manualPasswordFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input type="password" id="password" name="password" minlength="8" class="input-field">
+                                <small class="text-muted">Minimum 8 characters</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm Password:</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" class="input-field">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4>Consent</h4>
+
+                    <div class="form-group">
+                        <label for="signatureData">Member's Signature (Name): *</label>
+                        <input type="text" id="signatureData" th:field="*{signatureData}" required class="input-field signature-field">
+                        <small class="text-muted">Enter member's typed name as signature</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" th:field="*{consentGiven}" required>
+                            Member has agreed to the constitution *
+                        </label>
+                        <small class="text-muted">Confirm member has read and agreed to the constitution</small>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary">Add Member</button>
+                        <a href="/admin/members" class="btn btn-secondary">Cancel</a>
+                    </div>
+
+                    <p class="text-muted"><small>* Required fields</small></p>
+                </form>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+
+    <script>
+        function togglePasswordFields() {
+            const createAccountYes = document.getElementById('createAccountYes');
+            const passwordFields = document.getElementById('passwordFields');
+            
+            if (createAccountYes.checked) {
+                passwordFields.style.display = 'block';
+            } else {
+                passwordFields.style.display = 'none';
+            }
+        }
+
+        function togglePasswordInput() {
+            const manualOption = document.querySelector('input[name="passwordOption"][value="manual"]');
+            const manualPasswordFields = document.getElementById('manualPasswordFields');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            
+            if (manualOption.checked) {
+                manualPasswordFields.style.display = 'block';
+                passwordInput.required = true;
+                confirmPasswordInput.required = true;
+            } else {
+                manualPasswordFields.style.display = 'none';
+                passwordInput.required = false;
+                confirmPasswordInput.required = false;
+                passwordInput.value = '';
+                confirmPasswordInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>

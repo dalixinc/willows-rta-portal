@@ -62,6 +62,86 @@ public class AdminController {
         return "admin/members";
     }
 
+    // Show add member form
+    @GetMapping("/members/add")
+    public String showAddMemberForm(Model model) {
+        model.addAttribute("member", new Member());
+        return "admin/add-member";
+    }
+
+    // Handle add member submission
+    @PostMapping("/members/add")
+    public String addMember(@ModelAttribute Member member,
+                           @RequestParam(required = false) String createAccount,
+                           @RequestParam(required = false) String passwordOption,
+                           @RequestParam(required = false) String password,
+                           @RequestParam(required = false) String confirmPassword,
+                           RedirectAttributes redirectAttributes,
+                           Model model) {
+        try {
+            // Validate email uniqueness
+            if (memberService.emailExists(member.getEmail())) {
+                model.addAttribute("errorMessage", "Email already exists. Please use a different email.");
+                return "admin/add-member";
+            }
+
+            // Save the member
+            Member savedMember = memberService.registerMember(member);
+            
+            // Check if we need to create an account
+            if ("yes".equals(createAccount)) {
+                String accountPassword = password;
+                
+                // Generate password if auto option selected
+                if ("auto".equals(passwordOption) || accountPassword == null || accountPassword.trim().isEmpty()) {
+                    accountPassword = generateTemporaryPassword();
+                } else {
+                    // Validate manual password
+                    if (!accountPassword.equals(confirmPassword)) {
+                        model.addAttribute("errorMessage", "Passwords do not match");
+                        model.addAttribute("member", member);
+                        return "admin/add-member";
+                    }
+                    
+                    if (accountPassword.length() < 8) {
+                        model.addAttribute("errorMessage", "Password must be at least 8 characters");
+                        model.addAttribute("member", member);
+                        return "admin/add-member";
+                    }
+                }
+                
+                try {
+                    // Create user account
+                    User newUser = userService.createUser(member.getEmail(), accountPassword, "ROLE_MEMBER");
+                    newUser.setMember(savedMember);
+                    
+                    // Update member record
+                    savedMember.setHasUserAccount(true);
+                    savedMember.setAccountCreationMethod("ADMIN_CREATED");
+                    memberService.updateMemberAccountStatus(savedMember.getId(), true, "ADMIN_CREATED");
+                    
+                    redirectAttributes.addFlashAttribute("successMessage", "Member added successfully with login account!");
+                    redirectAttributes.addFlashAttribute("generatedPassword", accountPassword);
+                    redirectAttributes.addFlashAttribute("memberEmail", member.getEmail());
+                    return "redirect:/admin/members/" + savedMember.getId();
+                    
+                } catch (RuntimeException e) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Member added but login creation failed: " + e.getMessage());
+                    return "redirect:/admin/members/" + savedMember.getId();
+                }
+            } else {
+                // No account created
+                redirectAttributes.addFlashAttribute("successMessage", "Member added successfully! You can create a login account later.");
+                return "redirect:/admin/members/" + savedMember.getId();
+            }
+            
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error adding member: " + e.getMessage());
+            model.addAttribute("member", member);
+            return "admin/add-member";
+        }
+    }
+
     // View members without accounts
     @GetMapping("/members/no-accounts")
     public String viewMembersWithoutAccounts(Model model) {

@@ -19,6 +19,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.0.3] - 2026-02-09
+
+### Added
+- **Add Member Form**: Admins can manually add members from paper forms or email
+- **Flexible Account Creation**: Auto-generate or manually set passwords when adding members
+- **Email Validation**: Prevents duplicate member emails during manual entry
+- **Quick Actions**: "Add New Member" card on admin dashboard
+- **Navigation**: "Add Member" link in members list navigation
+
+**Features:**
+- Complete member information form
+- Optional login account creation during member add
+- Auto-generate secure passwords OR set manually
+- Email uniqueness validation
+- Success page shows generated credentials
+- Create account later option
+
+**Files Created:**
+- `admin/add-member.html` - Add member form template
+
+**Files Modified:**
+- `AdminController.java` - Added GET/POST endpoints for /admin/members/add
+- `MemberService.java` - Added emailExists() method
+- `admin/dashboard.html` - Added "Add New Member" quick action card
+- `admin/members.html` - Added "Add Member" navigation link
+
+**Use Cases:**
+- Add members from paper membership forms
+- Add members from email registrations
+- In-person registration with admin
+- Bulk data entry (create accounts later)
+
+---
+
 ## [1.0.2] - 2026-02-09
 
 ### Added
@@ -660,6 +694,16 @@ This is the initial 1.0.0 release. Future breaking changes will be documented he
 ---
 
 ## Configuration Changes by Version
+
+### 1.0.3 (2026-02-09)
+**No configuration properties added**
+**No database schema changes**
+**No breaking changes** - fully backward compatible
+
+**New Feature:**
+- Admin manual member entry form at /admin/members/add
+
+---
 
 ### 1.0.2 (2026-02-09)
 **Added Database Fields:**

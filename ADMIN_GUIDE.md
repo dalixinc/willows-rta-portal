@@ -24,6 +24,55 @@ After login, admins are redirected to `/admin/dashboard`
 
 ## 👥 Member Management
 
+### Add New Member (NEW v1.0.3)
+
+**Path:** Admin Dashboard → "➕ Add New Member" OR `/admin/members/add`
+
+**Purpose:** Manually add members from paper forms, email submissions, or in-person registrations
+
+**Information Required:**
+- **Personal:** Full name, email, phone
+- **Address:** Full address, flat/unit number
+- **Membership:** Leaseholder status, membership status, preferred communication
+- **Consent:** Digital signature, constitution agreement
+
+**Account Creation Options:**
+
+1. **Auto-Generate Password (Recommended)**
+   - System creates secure 12-character password
+   - Displayed once after creation
+   - Member forced to change on first login
+
+2. **Set Password Manually**
+   - Admin sets specific password (min 8 chars)
+   - Requires password confirmation
+   - Useful for in-person registration
+
+3. **Create Account Later**
+   - Just add member details
+   - Create login from member details page later
+   - Good for bulk data entry
+
+**Process:**
+1. Click "Add New Member"
+2. Fill in all required fields (marked with *)
+3. Choose account creation option
+4. Click "Add Member"
+5. View generated credentials (if account created)
+6. Share credentials securely with member
+
+**Validation:**
+- Email must be unique (checks for duplicates)
+- All required fields must be filled
+- Password must match confirmation (if manual)
+
+**After Creation:**
+- Redirected to member details page
+- Success message shows credentials (if account created)
+- Member appears in members list immediately
+
+---
+
 ### View All Members
 **Path:** Admin Dashboard → "View All Members" OR `/admin/members`
 
@@ -438,6 +487,44 @@ Attempt 6+:  "Account locked... try again in 15 minutes"
 ---
 
 ## 🆘 Common Admin Tasks
+
+### Add Member from Paper Form (NEW v1.0.3)
+
+1. Click "Add New Member" from dashboard
+2. Enter member details from form
+3. Select "Yes - Create login account"
+4. Select "Auto-generate secure password"
+5. Click "Add Member"
+6. Copy displayed password
+7. Contact member with credentials (phone/in-person)
+
+### Add Member from Email
+
+1. Receive member registration email
+2. Click "Add New Member"
+3. Copy details from email
+4. Auto-generate password
+5. Reply to email with credentials (securely)
+
+### In-Person Registration
+
+1. Member present with admin
+2. Click "Add New Member"
+3. Enter details together
+4. Select "Set password manually"
+5. Member provides password
+6. Confirm password
+7. Member can login immediately
+
+### Bulk Data Entry
+
+1. Click "Add New Member"
+2. Enter member details
+3. Select "No - Create account later"
+4. Repeat for all members
+5. Later: Create accounts in batch from member details pages
+
+---
 
 ### New Member Joins
 

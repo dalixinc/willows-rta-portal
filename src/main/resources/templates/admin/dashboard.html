@@ -52,6 +52,11 @@
                     <p>Manage member registrations and details</p>
                     <a href="/admin/members" class="btn btn-primary">Go to Members</a>
                 </div>
+                <div class="card">
+                    <h4>➕ Add New Member</h4>
+                    <p>Manually add member from paper form or email</p>
+                    <a href="/admin/members/add" class="btn btn-success">Add Member</a>
+                </div>
                 <div class="card" th:if="${membersWithoutAccounts > 0}">
                     <h4>⚠️ Pending Login Setup</h4>
                     <p th:text="${membersWithoutAccounts} + ' member(s) need login accounts'">0 members need login accounts</p>

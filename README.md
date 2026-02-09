@@ -20,6 +20,7 @@ A comprehensive membership portal for "The Willows" Recognised Tenants' Associat
 ### Admin Features
 - 📊 **Admin Dashboard** - Overview of membership statistics
 - 👥 **Member Management** - View, edit, and manage all member registrations
+- ➕ **Add Members Manually** - Add members from paper forms or email (NEW v1.0.3)
 - 👑 **Role Management** - Promote members to admin or demote to member
 - 🔐 **Account Security** - Lock/unlock accounts, reset passwords, clear failed login attempts
 - 🔧 **Status Management** - Update membership status (Active/Suspended/Terminated)

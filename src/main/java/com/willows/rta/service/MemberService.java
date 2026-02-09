@@ -27,6 +27,11 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
+    // Check if email exists
+    public boolean emailExists(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
     // Get all members
     public List<Member> getAllMembers() {
         return memberRepository.findAll();
