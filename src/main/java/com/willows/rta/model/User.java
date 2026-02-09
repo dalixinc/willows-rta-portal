@@ -31,6 +31,9 @@ public class User {
     private boolean passwordChangeRequired = false;
 
     @Column(nullable = false)
+    private boolean systemAdmin = false; // True for original admin account (cannot be deleted)
+
+    @Column(nullable = false)
     private int failedLoginAttempts = 0;
 
     @Column
@@ -112,6 +115,14 @@ public class User {
 
     public void setPasswordChangeRequired(boolean passwordChangeRequired) {
         this.passwordChangeRequired = passwordChangeRequired;
+    }
+
+    public boolean isSystemAdmin() {
+        return systemAdmin;
+    }
+
+    public void setSystemAdmin(boolean systemAdmin) {
+        this.systemAdmin = systemAdmin;
     }
 
     public int getFailedLoginAttempts() {

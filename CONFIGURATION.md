@@ -503,6 +503,7 @@ DB_PASSWORD=your-db-password
 | **Email From Address** | `application.properties` | `noreply@willowsrta.org` | Your domain |
 | **Email Provider** | `application.properties` | Disabled | SendGrid |
 | **MFA Enabled** | `application.properties` | `true` | `true` |
+| **Self-Registration** | `application.properties` | `true` | `false` (for vetting) |
 | **Failed Login Attempts** | `UserService.java` | 5 | 5 |
 | **Lockout Duration** | `UserService.java` | 15 min | 15-30 min |
 | **OTP Validity** | `OtpService.java` | 10 min | 10 min |

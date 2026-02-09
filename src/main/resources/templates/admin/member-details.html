@@ -130,9 +130,17 @@
                                 <span th:if="${member.accountCreationMethod == 'ADMIN_CREATED'}">Admin</span>
                             </td>
                         </tr>
-                        <tr th:if="${member.hasUserAccount}">
+                        <tr th:if="${member.hasUserAccount && user != null}">
                             <th>Login Username:</th>
                             <td th:text="${member.email}">email@example.com</td>
+                        </tr>
+                        <tr th:if="${member.hasUserAccount && user != null}">
+                            <th>Role:</th>
+                            <td>
+                                <span th:if="${user.role == 'ROLE_ADMIN'}" class="badge badge-admin">Administrator</span>
+                                <span th:if="${user.role == 'ROLE_MEMBER'}" class="badge badge-success">Member</span>
+                                <span th:if="${user.systemAdmin}" class="badge badge-warning" style="margin-left: 10px;">System Admin</span>
+                            </td>
                         </tr>
                         <tr th:if="${member.hasUserAccount && user != null}">
                             <th>Password Change Required:</th>
@@ -169,6 +177,18 @@
                                 <button type="submit" class="btn btn-warning" 
                                         onclick="return confirm('Reset password for this member? They will be required to change it on next login.')">
                                     🔑 Reset Password
+                                </button>
+                            </form>
+                            
+                            <!-- Change Role -->
+                            <form th:if="${user != null && !user.systemAdmin}" 
+                                  th:action="@{/admin/members/toggle-role/{id}(id=${member.id})}" 
+                                  method="post" 
+                                  style="display: inline;">
+                                <button type="submit" class="btn btn-info" 
+                                        th:onclick="'return confirm(\'Change role to ' + (${user.role == 'ROLE_ADMIN'} ? 'Member' : 'Admin') + '?\');'">
+                                    <span th:if="${user.role == 'ROLE_ADMIN'}">👤 Make Member</span>
+                                    <span th:if="${user.role == 'ROLE_MEMBER'}">👑 Make Admin</span>
                                 </button>
                             </form>
                             

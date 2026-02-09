@@ -19,6 +19,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.0.2] - 2026-02-09
+
+### Added
+- **Role Management System**: Admins can promote members to admin or demote to member
+- **Role Column in Members List**: Shows Admin/Member role with color-coded badges
+- **Admin Username Styling**: Admin usernames displayed in red (members in black)
+- **System Admin Protection**: Original admin account cannot be deleted or have role changed
+- **Visual Role Indicators**: Red badge for Admin, green badge for Member
+
+**Features:**
+- Change member role: Admin ↔ Member (one-click toggle)
+- System admin flagging (`systemAdmin` field in database)
+- Role displayed in members list and member details
+- Confirmation dialogs for role changes
+- Protection prevents deletion/role change of system admin
+
+**Files Modified:**
+- `User.java` - Added `systemAdmin` boolean field
+- `Member.java` - Added `userRole` transient field
+- `DataInitializer.java` - Mark default admin as system admin
+- `AdminController.java` - Added toggle role endpoint, populate userRole in list
+- `admin/members.html` - Added Role column
+- `admin/member-details.html` - Added role display and change role button
+- `admin/dashboard.html` - Added admin username styling
+- `style.css` - Added `.admin-username` and `.badge-admin` styles
+
+**UI Changes:**
+- Members list now has "Role" column
+- Admin usernames appear in red
+- Member usernames appear in black
+- Role badges: Red (Admin), Green (Member)
+- Change role button in member details
+- System admin badge for protected account
+
+---
+
 ## [1.0.1] - 2026-02-09
 
 ### Fixed
@@ -553,7 +589,7 @@ spring.datasource.password=filepassword WillowsRTA2026!Secure
 2. ✅ OTP/MFA (email-based, optional)
 3. ✅ Failed login lockout (5 attempts, 15 min)
 4. ✅ Session management
-5. ✅ Role-based authorization
+5. ✅ Role-based authorization (Admin/Member)
 6. ✅ CSRF protection
 
 ### Data Protection:
@@ -569,6 +605,14 @@ spring.datasource.password=filepassword WillowsRTA2026!Secure
 3. ✅ Clear failed login attempts
 4. ✅ Create user accounts for members
 5. ✅ View security status
+6. ✅ Change member roles (Admin/Member)
+7. ✅ System admin protection (cannot delete original admin)
+
+### Access Control:
+1. ✅ Role-based dashboards (Admin vs Member)
+2. ✅ Protected admin routes
+3. ✅ System administrator privileges
+4. ✅ Role change authorization
 
 ---
 
@@ -616,6 +660,18 @@ This is the initial 1.0.0 release. Future breaking changes will be documented he
 ---
 
 ## Configuration Changes by Version
+
+### 1.0.2 (2026-02-09)
+**Added Database Fields:**
+- `users.system_admin` (boolean) - Marks original admin account as protected
+
+**Added Transient Fields:**
+- `Member.userRole` (String) - Display user role in admin views
+
+**No configuration properties added**
+**No breaking changes** - fully backward compatible
+
+---
 
 ### 1.0.1 (2026-02-09)
 **Added Properties:**

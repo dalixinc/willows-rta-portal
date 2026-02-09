@@ -185,3 +185,65 @@ All of the above! ✅
 ---
 
 **Need Help?** Check the logs - they're very detailed and will tell you exactly what's wrong!
+
+---
+
+### 👑 Role Management Issues
+
+**Cannot change role of system administrator**
+
+**Error message:**
+```
+Cannot change role of system administrator
+```
+
+**Cause:**
+Trying to change role of the original admin account (username: `admin`)
+
+**Solution:**
+This is by design. The system administrator account cannot have its role changed to prevent lockout.
+
+**Workaround:**
+1. Create a new admin account by promoting a member
+2. Use that account for regular admin work
+3. Keep system admin as backup
+
+---
+
+**Change role button not visible**
+
+**Cause 1:** Member has no user account
+**Solution:** Create login account first, then change role
+
+**Cause 2:** Viewing system administrator account
+**Solution:** System admin role cannot be changed (protected)
+
+**Cause 3:** Not logged in as admin
+**Solution:** Only admins can change roles
+
+---
+
+**Promoted user still sees member dashboard**
+
+**Cause:**
+User needs to logout and login again for role change to take effect
+
+**Solution:**
+1. Tell user to logout
+2. Login again
+3. Will now see admin dashboard
+
+---
+
+### 🎨 Admin Username Not Showing in Red
+
+**Cause:**
+CSS not loaded or browser cache
+
+**Solution:**
+1. Hard refresh browser: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac)
+2. Clear browser cache
+3. Check style.css loaded in browser dev tools
+
+---
+

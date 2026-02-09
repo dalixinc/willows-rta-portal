@@ -12,7 +12,7 @@
         <header class="site-header">
             <h1>🏘️ The Willows RTA - Admin Dashboard</h1>
             <div class="user-info">
-                <span>Logged in as: <strong th:text="${username}"></strong></span>
+                <span>Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-small btn-secondary">Logout</button>
                 </form>

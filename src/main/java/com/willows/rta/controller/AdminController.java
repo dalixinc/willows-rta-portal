@@ -32,6 +32,7 @@ public class AdminController {
     @GetMapping("/dashboard")
     public String adminDashboard(Model model, Authentication authentication) {
         model.addAttribute("username", authentication.getName());
+        model.addAttribute("isAdmin", true);
         model.addAttribute("totalMembers", memberService.getTotalMemberCount());
         model.addAttribute("activeMembers", memberService.getActiveMemberCount());
         model.addAttribute("membersWithoutAccounts", memberService.getMembersWithoutAccounts().size());
@@ -52,6 +53,7 @@ public class AdminController {
                     member.setUserEnabled(user.isEnabled());
                     member.setUserAccountLocked(user.isAccountLocked());
                     member.setUserFailedAttempts(user.getFailedLoginAttempts());
+                    member.setUserRole(user.getRole());
                 }
             }
         }
@@ -293,6 +295,52 @@ public class AdminController {
             
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error unlocking account: " + e.getMessage());
+            return "redirect:/admin/members/" + id;
+        }
+    }
+
+    // Toggle user role (Admin <-> Member)
+    @PostMapping("/members/toggle-role/{id}")
+    public String toggleUserRole(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Member member = memberService.getMemberById(id)
+                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            
+            if (!member.isHasUserAccount()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "This member has no user account");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            // Get user account
+            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
+            if (userOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "User account not found");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            User user = userOpt.get();
+            
+            // Prevent changing role of system admin
+            if (user.isSystemAdmin()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Cannot change role of system administrator");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            // Toggle role
+            if ("ROLE_ADMIN".equals(user.getRole())) {
+                user.setRole("ROLE_MEMBER");
+                redirectAttributes.addFlashAttribute("successMessage", "User role changed to Member");
+            } else {
+                user.setRole("ROLE_ADMIN");
+                redirectAttributes.addFlashAttribute("successMessage", "User role changed to Administrator");
+            }
+            
+            userService.saveUser(user);
+            
+            return "redirect:/admin/members/" + id;
+            
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error changing role: " + e.getMessage());
             return "redirect:/admin/members/" + id;
         }
     }

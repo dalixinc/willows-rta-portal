@@ -68,6 +68,9 @@ public class Member {
     @Transient
     private Integer userFailedAttempts;
 
+    @Transient
+    private String userRole;
+
     // Constructors
     public Member() {
         this.registrationDate = LocalDateTime.now();
@@ -210,5 +213,13 @@ public class Member {
 
     public void setUserFailedAttempts(Integer userFailedAttempts) {
         this.userFailedAttempts = userFailedAttempts;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 }

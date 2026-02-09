@@ -44,6 +44,7 @@
                             <th>Phone</th>
                             <th>Leaseholder</th>
                             <th>Has Login</th>
+                            <th>Role</th>
                             <th>Account Status</th>
                             <th>Membership</th>
                             <th>Registered</th>
@@ -64,6 +65,12 @@
                             <td>
                                 <span th:if="${member.hasUserAccount}" class="badge badge-success">✓</span>
                                 <span th:unless="${member.hasUserAccount}" class="badge badge-error">✗</span>
+                            </td>
+                            <td>
+                                <!-- Role Column -->
+                                <span th:if="${!member.hasUserAccount}" class="badge badge-secondary">-</span>
+                                <span th:if="${member.hasUserAccount && member.userRole == 'ROLE_ADMIN'}" class="badge badge-admin">Admin</span>
+                                <span th:if="${member.hasUserAccount && member.userRole == 'ROLE_MEMBER'}" class="badge badge-success">Member</span>
                             </td>
                             <td>
                                 <!-- Account Status Column -->

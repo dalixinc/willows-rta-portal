@@ -40,10 +40,12 @@ login button should also respond to enter pressed
 
 admin needs to be able to change member role to admin pr normal, which should display in registered members and the login message at the top right should be in red for the admin users as opposed to the current black for normal members
 
+==============================================================================================
+
 admin needs to actually be able to add members
 
 
-
+verify & login button should also respond to enter pressed
 
 
 ==================================================================================================

@@ -5,21 +5,28 @@ A comprehensive membership portal for "The Willows" Recognised Tenants' Associat
 ## Features
 
 ### Public Features
-- ✅ **Member Registration** - Complete online registration form matching your membership form
+- ✅ **Member Registration** - Complete online registration form with dual-path option
+- ✅ **Self-Registration Toggle** - Members can create accounts or wait for admin approval
 - 📋 **Constitution Display** - View constitution online and print/download as PDF
-- 🔐 **Secure Login** - Spring Security authentication
+- 🔐 **Secure Login** - Spring Security authentication with optional MFA/OTP
 
 ### Member Features
 - 👤 **Member Dashboard** - Personal portal for registered members
 - 📄 **Profile Access** - View membership details
+- 📋 **Members Directory** - Privacy-focused directory of active members
+- 🔑 **Change Password** - Self-service password management
 - 📋 **Constitution Access** - Always accessible to members
 
 ### Admin Features
 - 📊 **Admin Dashboard** - Overview of membership statistics
 - 👥 **Member Management** - View, edit, and manage all member registrations
+- 👑 **Role Management** - Promote members to admin or demote to member
+- 🔐 **Account Security** - Lock/unlock accounts, reset passwords, clear failed login attempts
 - 🔧 **Status Management** - Update membership status (Active/Suspended/Terminated)
-- 📝 **Member Details** - Complete view of all member information
-- 🗑️ **Member Deletion** - Remove members when needed
+- 📝 **Member Details** - Complete view of all member information with account status
+- 🗑️ **Member Deletion** - Remove members when needed (system admin protected)
+- 🔑 **Create Login Accounts** - Generate login credentials for members
+- 📊 **Security Dashboard** - View failed login attempts, locked accounts, role assignments
 
 ## Technologies Used
 
@@ -34,12 +41,16 @@ A comprehensive membership portal for "The Willows" Recognised Tenants' Associat
 
 ## Security Features
 
-- Database file encryption (AES)
-- Password encryption with BCrypt
-- Role-based access control (Admin & Member)
-- Session management
-- CSRF protection
-- Secure authentication
+- 🔐 **Two-Factor Authentication (MFA/OTP)** - Optional email-based verification codes
+- 🔒 **Failed Login Lockout** - Automatic 15-minute lockout after 5 failed attempts
+- 🛡️ **Database Encryption** - AES encryption for database files
+- 🔑 **Password Encryption** - BCrypt hashing for all passwords
+- 👥 **Role-Based Access Control** - Admin & Member roles with protected routes
+- 🔐 **Session Management** - Secure session handling
+- 🛡️ **CSRF Protection** - Built-in Spring Security protection
+- 🚫 **System Admin Protection** - Original admin account cannot be deleted
+- 📧 **Email Uniqueness** - Prevents duplicate member registrations
+- 🔓 **Admin Override** - Admins can unlock accounts and reset passwords
 
 **See `DATABASE_SECURITY.md` for complete security documentation.**
 
