@@ -27,29 +27,40 @@ body {
     text-align: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
+    padding-top: 10px;
     border-bottom: 3px solid #2E7D32;
     position: relative;
+    min-height: 80px; /* Ensure space for user info */
 }
 
 .site-header h1 {
     color: #2E7D32;
-    font-size: 2.5em;
-    margin-bottom: 10px;
+    font-size: 2.2em; /* Reduced from 2.5em */
+    margin-bottom: 8px;
+    margin-top: 10px;
+    padding-right: 200px; /* Space for user info on right */
 }
 
 .site-header h2 {
     color: #555;
-    font-size: 1.3em;
+    font-size: 1.2em; /* Reduced from 1.3em */
     font-weight: normal;
+    padding-right: 200px; /* Space for user info on right */
 }
 
 .user-info {
     position: absolute;
-    top: 0;
+    top: 10px;
     right: 0;
     display: flex;
     align-items: center;
     gap: 15px;
+    font-size: 0.9em;
+}
+
+.user-info span {
+    color: #555;
+    white-space: nowrap;
 }
 
 /* Navigation */
