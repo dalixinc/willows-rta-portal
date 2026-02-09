@@ -102,10 +102,10 @@
                 <div class="detail-section">
                     <h3>Login Account Status</h3>
                     <div th:if="${generatedPassword}" class="alert alert-success">
-                        <strong>✅ Account Created!</strong><br>
+                        <strong>✅ Password Reset!</strong><br>
                         <strong>Email/Username:</strong> <span th:text="${memberEmail}">email@example.com</span><br>
-                        <strong>Temporary Password:</strong> <code th:text="${generatedPassword}">password123</code><br>
-                        <small>⚠️ Please share these credentials with the member securely. They should change the password on first login.</small>
+                        <strong>New Temporary Password:</strong> <code th:text="${generatedPassword}">password123</code><br>
+                        <small>⚠️ Please share these credentials with the member securely. They must change the password on next login.</small>
                     </div>
                     
                     <table class="details-table">
@@ -114,6 +114,13 @@
                             <td>
                                 <span th:if="${member.hasUserAccount}" class="badge badge-success">Yes</span>
                                 <span th:unless="${member.hasUserAccount}" class="badge badge-error">No</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${member.hasUserAccount}">
+                            <th>Account Status:</th>
+                            <td>
+                                <span th:if="${user != null && user.enabled}" class="badge badge-success">Active</span>
+                                <span th:if="${user != null && !user.enabled}" class="badge badge-error">Locked</span>
                             </td>
                         </tr>
                         <tr th:if="${member.hasUserAccount}">
@@ -127,7 +134,45 @@
                             <th>Login Username:</th>
                             <td th:text="${member.email}">email@example.com</td>
                         </tr>
+                        <tr th:if="${member.hasUserAccount && user != null}">
+                            <th>Password Change Required:</th>
+                            <td>
+                                <span th:if="${user.passwordChangeRequired}" class="badge badge-warning">Yes</span>
+                                <span th:unless="${user.passwordChangeRequired}" class="badge badge-success">No</span>
+                            </td>
+                        </tr>
                     </table>
+                    
+                    <!-- Account Management Actions -->
+                    <div th:if="${member.hasUserAccount}" style="margin-top: 20px;">
+                        <h4>Account Actions</h4>
+                        <div class="account-actions" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                            
+                            <!-- Reset Password -->
+                            <form th:action="@{/admin/members/reset-password/{id}(id=${member.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-warning" 
+                                        onclick="return confirm('Reset password for this member? They will be required to change it on next login.')">
+                                    🔑 Reset Password
+                                </button>
+                            </form>
+                            
+                            <!-- Lock/Unlock Account -->
+                            <form th:action="@{/admin/members/toggle-lock/{id}(id=${member.id})}" method="post" style="display: inline;">
+                                <button th:if="${user != null && user.enabled}" 
+                                        type="submit" 
+                                        class="btn btn-error" 
+                                        onclick="return confirm('Lock this account? The member will not be able to login.')">
+                                    🔒 Lock Account
+                                </button>
+                                <button th:if="${user != null && !user.enabled}" 
+                                        type="submit" 
+                                        class="btn btn-success" 
+                                        onclick="return confirm('Unlock this account? The member will be able to login again.')">
+                                    🔓 Unlock Account
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                     
                     <div th:unless="${member.hasUserAccount}" style="margin-top: 20px;">
                         <form th:action="@{/admin/members/create-account/{id}(id=${member.id})}" method="post" class="create-account-form">

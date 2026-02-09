@@ -65,6 +65,12 @@ public class AuthController {
 
         User user = userOpt.get();
 
+        // Check if account is locked
+        if (!user.isEnabled()) {
+            redirectAttributes.addFlashAttribute("error", "Your account has been locked. Please contact an administrator.");
+            return "redirect:/login";
+        }
+
         // Check password
         if (!passwordEncoder.matches(password, user.getPassword())) {
             redirectAttributes.addFlashAttribute("error", "Invalid username or password");

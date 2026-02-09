@@ -93,4 +93,9 @@ public class UserService implements UserDetailsService {
         user.setPasswordChangeRequired(false); // Clear the flag after password change
         userRepository.save(user);
     }
+
+    // Save user (for updating other fields like enabled status)
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
 }

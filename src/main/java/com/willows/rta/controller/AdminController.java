@@ -57,6 +57,13 @@ public class AdminController {
         Member member = memberService.getMemberById(id)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
         model.addAttribute("member", member);
+        
+        // If member has user account, get the user details
+        if (member.isHasUserAccount()) {
+            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
+            userOpt.ifPresent(user -> model.addAttribute("user", user));
+        }
+        
         return "admin/member-details";
     }
 
@@ -162,6 +169,90 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting member: " + e.getMessage());
         }
         return "redirect:/admin/members";
+    }
+
+    // Reset member password
+    @PostMapping("/members/reset-password/{id}")
+    public String resetMemberPassword(@PathVariable Long id,
+                                      @RequestParam(required = false) String customPassword,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            Member member = memberService.getMemberById(id)
+                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            
+            if (!member.isHasUserAccount()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "This member has no user account");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            // Get user account
+            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
+            if (userOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "User account not found");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            User user = userOpt.get();
+            
+            // Generate password if not provided
+            String newPassword = (customPassword != null && !customPassword.trim().isEmpty()) 
+                ? customPassword 
+                : generateTemporaryPassword();
+            
+            // Reset password and require change on next login
+            userService.updatePassword(user.getId(), newPassword);
+            user.setPasswordChangeRequired(true);
+            userService.saveUser(user);
+            
+            // Store password in flash to show to admin
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Password reset successfully!");
+            redirectAttributes.addFlashAttribute("generatedPassword", newPassword);
+            redirectAttributes.addFlashAttribute("memberEmail", member.getEmail());
+            
+            return "redirect:/admin/members/" + id;
+            
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error resetting password: " + e.getMessage());
+            return "redirect:/admin/members/" + id;
+        }
+    }
+
+    // Lock/Unlock user account
+    @PostMapping("/members/toggle-lock/{id}")
+    public String toggleAccountLock(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Member member = memberService.getMemberById(id)
+                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            
+            if (!member.isHasUserAccount()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "This member has no user account");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            // Get user account
+            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
+            if (userOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "User account not found");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            User user = userOpt.get();
+            
+            // Toggle enabled status
+            user.setEnabled(!user.isEnabled());
+            userService.saveUser(user);
+            
+            String status = user.isEnabled() ? "unlocked" : "locked";
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Account " + status + " successfully!");
+            
+            return "redirect:/admin/members/" + id;
+            
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error toggling account lock: " + e.getMessage());
+            return "redirect:/admin/members/" + id;
+        }
     }
 
     // Helper method to generate temporary password
