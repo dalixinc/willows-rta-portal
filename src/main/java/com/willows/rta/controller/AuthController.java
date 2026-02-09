@@ -55,17 +55,26 @@ public class AuthController {
                               RedirectAttributes redirectAttributes,
                               Model model) {
         
+        // Check if account is locked due to failed login attempts
+        if (userService.isAccountLocked(username)) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Account temporarily locked due to multiple failed login attempts. Please try again in 15 minutes or contact an administrator.");
+            return "redirect:/login";
+        }
+
         // Validate username and password first
         Optional<User> userOpt = userService.getUserByUsername(username);
         
         if (userOpt.isEmpty()) {
+            // Don't reveal if username exists - just record attempt
+            userService.recordFailedLoginAttempt(username);
             redirectAttributes.addFlashAttribute("error", "Invalid username or password");
             return "redirect:/login";
         }
 
         User user = userOpt.get();
 
-        // Check if account is locked
+        // Check if account is locked by admin
         if (!user.isEnabled()) {
             redirectAttributes.addFlashAttribute("error", "Your account has been locked. Please contact an administrator.");
             return "redirect:/login";
@@ -73,9 +82,21 @@ public class AuthController {
 
         // Check password
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            redirectAttributes.addFlashAttribute("error", "Invalid username or password");
+            // Record failed login attempt
+            userService.recordFailedLoginAttempt(username);
+            
+            int remainingAttempts = 5 - (user.getFailedLoginAttempts() + 1);
+            if (remainingAttempts > 0 && remainingAttempts <= 3) {
+                redirectAttributes.addFlashAttribute("error", 
+                    "Invalid username or password. " + remainingAttempts + " attempts remaining before account lock.");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Invalid username or password");
+            }
             return "redirect:/login";
         }
+
+        // Password correct - reset failed login attempts
+        userService.resetFailedLoginAttempts(username);
 
         // If MFA is disabled, login directly
         if (!mfaEnabled) {

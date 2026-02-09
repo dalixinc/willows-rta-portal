@@ -255,6 +255,32 @@ public class AdminController {
         }
     }
 
+    // Unlock failed login attempts
+    @PostMapping("/members/unlock-failed-attempts/{id}")
+    public String unlockFailedAttempts(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Member member = memberService.getMemberById(id)
+                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            
+            if (!member.isHasUserAccount()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "This member has no user account");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            // Unlock the account
+            userService.unlockAccount(member.getEmail());
+            
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Failed login attempts cleared and account unlocked!");
+            
+            return "redirect:/admin/members/" + id;
+            
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error unlocking account: " + e.getMessage());
+            return "redirect:/admin/members/" + id;
+        }
+    }
+
     // Helper method to generate temporary password
     private String generateTemporaryPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";

@@ -141,6 +141,22 @@
                                 <span th:unless="${user.passwordChangeRequired}" class="badge badge-success">No</span>
                             </td>
                         </tr>
+                        <tr th:if="${member.hasUserAccount && user != null}">
+                            <th>Failed Login Attempts:</th>
+                            <td>
+                                <span th:text="${user.failedLoginAttempts}">0</span>
+                                <span th:if="${user.failedLoginAttempts >= 3}" class="badge badge-warning" style="margin-left: 10px;">High</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${member.hasUserAccount && user != null && user.accountLockedUntil != null}">
+                            <th>Account Locked Until:</th>
+                            <td>
+                                <span th:if="${user.accountLocked}" class="badge badge-error">
+                                    <span th:text="${#temporals.format(user.accountLockedUntil, 'dd MMM yyyy, HH:mm')}"></span>
+                                </span>
+                                <span th:unless="${user.accountLocked}" class="badge badge-success">Lock Expired</span>
+                            </td>
+                        </tr>
                     </table>
                     
                     <!-- Account Management Actions -->
@@ -153,6 +169,17 @@
                                 <button type="submit" class="btn btn-warning" 
                                         onclick="return confirm('Reset password for this member? They will be required to change it on next login.')">
                                     🔑 Reset Password
+                                </button>
+                            </form>
+                            
+                            <!-- Unlock Failed Attempts -->
+                            <form th:if="${user != null && user.failedLoginAttempts > 0}" 
+                                  th:action="@{/admin/members/unlock-failed-attempts/{id}(id=${member.id})}" 
+                                  method="post" 
+                                  style="display: inline;">
+                                <button type="submit" class="btn btn-info" 
+                                        onclick="return confirm('Clear failed login attempts and unlock account?')">
+                                    🔓 Clear Failed Attempts
                                 </button>
                             </form>
                             

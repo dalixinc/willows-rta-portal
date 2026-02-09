@@ -1,0 +1,35 @@
+back from constitution tab logs one out
+
+flipping between otp and no otp breaks it as database is immutable
+
+force password change on firsy login for user who has account created by admin
+
+
+========================================
+
+
+headings not overlapped logged in me
+
+====================================================
+
+Admin needs to be able to reset other members passwords
+
+Admin needs to be able to lock members accounts
+
+==========================================================
+
+Failed login feature
+
+=============================================================
+
+The option that members can set up a password themselves must be a toggle - we may want it so all applicants need to be reviewed
+
+Indicate that account is locked in the admin viewed members list
+
+======================================================================
+
+login button should also respond to enter pressed
+
+admin needs to be able to change member role to admin pr normal, which should display in registered members and the login message at the top right should be in red for the admin users as opposed to the current black for normal members
+
+admin needs to actually be able to add members

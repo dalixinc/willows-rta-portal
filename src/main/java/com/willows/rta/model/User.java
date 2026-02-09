@@ -30,6 +30,12 @@ public class User {
     @Column(nullable = false)
     private boolean passwordChangeRequired = false;
 
+    @Column(nullable = false)
+    private int failedLoginAttempts = 0;
+
+    @Column
+    private LocalDateTime accountLockedUntil;
+
     @Column
     private LocalDateTime lastLogin;
 
@@ -106,5 +112,28 @@ public class User {
 
     public void setPasswordChangeRequired(boolean passwordChangeRequired) {
         this.passwordChangeRequired = passwordChangeRequired;
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public LocalDateTime getAccountLockedUntil() {
+        return accountLockedUntil;
+    }
+
+    public void setAccountLockedUntil(LocalDateTime accountLockedUntil) {
+        this.accountLockedUntil = accountLockedUntil;
+    }
+
+    public boolean isAccountLocked() {
+        if (accountLockedUntil == null) {
+            return false;
+        }
+        return LocalDateTime.now().isBefore(accountLockedUntil);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -97,5 +98,65 @@ public class UserService implements UserDetailsService {
     // Save user (for updating other fields like enabled status)
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    // Record failed login attempt
+    public void recordFailedLoginAttempt(String username) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
+            
+            // Lock account after 5 failed attempts for 15 minutes
+            if (user.getFailedLoginAttempts() >= 5) {
+                user.setAccountLockedUntil(LocalDateTime.now().plusMinutes(15));
+                System.out.println("Account locked due to failed login attempts: " + username);
+            }
+            
+            userRepository.save(user);
+        }
+    }
+
+    // Reset failed login attempts (after successful login)
+    public void resetFailedLoginAttempts(String username) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setFailedLoginAttempts(0);
+            user.setAccountLockedUntil(null);
+            user.setLastLogin(LocalDateTime.now());
+            userRepository.save(user);
+        }
+    }
+
+    // Check if account is locked due to failed attempts
+    public boolean isAccountLocked(String username) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            
+            // If lock has expired, clear it
+            if (user.getAccountLockedUntil() != null && 
+                LocalDateTime.now().isAfter(user.getAccountLockedUntil())) {
+                user.setFailedLoginAttempts(0);
+                user.setAccountLockedUntil(null);
+                userRepository.save(user);
+                return false;
+            }
+            
+            return user.isAccountLocked();
+        }
+        return false;
+    }
+
+    // Manually unlock account (admin action)
+    public void unlockAccount(String username) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setFailedLoginAttempts(0);
+            user.setAccountLockedUntil(null);
+            userRepository.save(user);
+        }
     }
 }
