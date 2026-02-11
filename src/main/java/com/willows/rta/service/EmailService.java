@@ -19,14 +19,16 @@ public class EmailService {
     private boolean emailEnabled;
 
     public void sendOtpEmail(String toEmail, String otpCode) {
+        // ALWAYS log OTP to console (for debugging and fallback)
+        System.out.println("========================================");
+        System.out.println("OTP CODE GENERATED:");
+        System.out.println("To: " + toEmail);
+        System.out.println("OTP Code: " + otpCode);
+        System.out.println("Expires in: 10 minutes");
+        System.out.println("========================================");
+        
         if (!emailEnabled || mailSender == null) {
-            // Email not configured - log the OTP instead
-            System.out.println("========================================");
-            System.out.println("EMAIL NOT CONFIGURED - OTP CODE:");
-            System.out.println("To: " + toEmail);
-            System.out.println("OTP Code: " + otpCode);
-            System.out.println("This code will expire in 10 minutes");
-            System.out.println("========================================");
+            System.out.println("Email not configured - OTP logged above");
             return;
         }
 
@@ -38,16 +40,11 @@ public class EmailService {
             message.setText(buildOtpEmailBody(otpCode));
             
             mailSender.send(message);
-            System.out.println("OTP email sent successfully to: " + toEmail);
+            System.out.println("✅ OTP email sent successfully to: " + toEmail);
             
         } catch (Exception e) {
-            System.err.println("Failed to send email to " + toEmail + ": " + e.getMessage());
-            // Fallback: log the OTP
-            System.out.println("========================================");
-            System.out.println("EMAIL FAILED - OTP CODE:");
-            System.out.println("To: " + toEmail);
-            System.out.println("OTP Code: " + otpCode);
-            System.out.println("========================================");
+            System.err.println("❌ Failed to send email to " + toEmail + ": " + e.getMessage());
+            System.out.println("⚠️  Email failed but OTP is logged above - you can still use it!");
         }
     }
 
