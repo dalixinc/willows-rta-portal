@@ -23,6 +23,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public pages
                 .requestMatchers("/", "/register", "/constitution", "/css/**", "/js/**", "/documents/**").permitAll()
+                // H2 Console (for development/data export)
+                .requestMatchers("/h2-console/**").permitAll()
                 // Login and OTP authentication endpoints - must be public
                 .requestMatchers("/login", "/login-with-otp", "/verify-otp", "/resend-otp").permitAll()
                 // Admin-only pages
@@ -39,7 +41,11 @@ public class SecurityConfig {
                 .permitAll()
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/login-with-otp", "/verify-otp", "/resend-otp")
+                .ignoringRequestMatchers("/login-with-otp", "/verify-otp", "/resend-otp", "/h2-console/**")
+            )
+            // Allow H2 Console to be displayed in frames (it uses iframes)
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin())
             );
 
         return http.build();
