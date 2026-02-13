@@ -139,24 +139,35 @@ public class AuthController {
         }
 
         // MFA is enabled - proceed with OTP
+        System.out.println("=== MFA LOGIN FLOW ===");
+        System.out.println("Username: " + username);
+        System.out.println("User has member: " + (user.getMember() != null));
+        
         String email = user.getMember() != null ? user.getMember().getEmail() : username;
+        System.out.println("Email to send OTP to: " + email);
+        
         otpService.generateAndSendOtp(username, email);
 
         // Store username in session for OTP verification
         session.setAttribute("otp_username", username);
         session.setAttribute("otp_timestamp", System.currentTimeMillis());
+        System.out.println("Session attributes set - redirecting to /verify-otp");
 
         redirectAttributes.addFlashAttribute("successMessage", 
             "A verification code has been sent to your email: " + maskEmail(email));
         
+        System.out.println("Returning: redirect:/verify-otp");
         return "redirect:/verify-otp";
     }
 
     @GetMapping("/verify-otp")
     public String showOtpPage(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        System.out.println("=== VERIFY-OTP PAGE ACCESSED ===");
         String username = (String) session.getAttribute("otp_username");
+        System.out.println("Username from session: " + username);
         
         if (username == null) {
+            System.out.println("ERROR: No username in session - redirecting to login");
             redirectAttributes.addFlashAttribute("error", "Session expired. Please login again.");
             return "redirect:/login";
         }
@@ -164,12 +175,14 @@ public class AuthController {
         // Check session timeout (10 minutes)
         Long timestamp = (Long) session.getAttribute("otp_timestamp");
         if (timestamp != null && (System.currentTimeMillis() - timestamp) > 600000) {
+            System.out.println("ERROR: Session expired - redirecting to login");
             session.removeAttribute("otp_username");
             session.removeAttribute("otp_timestamp");
             redirectAttributes.addFlashAttribute("error", "Session expired. Please login again.");
             return "redirect:/login";
         }
 
+        System.out.println("Showing OTP page for user: " + username);
         model.addAttribute("username", username);
         return "verify-otp";
     }

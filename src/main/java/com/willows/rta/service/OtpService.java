@@ -14,14 +14,14 @@ import java.util.Optional;
 public class OtpService {
 
     private final OtpRepository otpRepository;
-    private final EmailService emailService;
+    private final ResendEmailService resendEmailService;
     private static final int OTP_VALIDITY_MINUTES = 10;
     private static final int OTP_LENGTH = 6;
 
     @Autowired
-    public OtpService(OtpRepository otpRepository, EmailService emailService) {
+    public OtpService(OtpRepository otpRepository, ResendEmailService resendEmailService) {
         this.otpRepository = otpRepository;
-        this.emailService = emailService;
+        this.resendEmailService = resendEmailService;
     }
 
     /**
@@ -39,8 +39,8 @@ public class OtpService {
         OtpCode otp = new OtpCode(username, otpCode, OTP_VALIDITY_MINUTES);
         otpRepository.save(otp);
 
-        // Send via email
-        emailService.sendOtpEmail(email, otpCode);
+        // Send via email (async)
+        resendEmailService.sendOtpEmail(email, otpCode);
 
         return otpCode; // Return for testing purposes
     }

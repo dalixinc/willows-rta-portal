@@ -1,0 +1,103 @@
+package com.willows.rta.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+/**
+ * Gmail-based email service (SMTP)
+ * NOTE: This is kept for reference but not actively used.
+ * To use Gmail instead of Resend:
+ * 1. Update OtpService to inject GmailEmailService instead of ResendEmailService
+ * 2. Uncomment Gmail config in application.properties
+ * 3. Comment out Resend config
+ * WARNING: Gmail SMTP does NOT work on Railway (port 587 blocked)
+ */
+@Service
+public class GmailEmailService {
+
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
+
+    @Value("${spring.mail.from:noreply@willowsrta.org}")
+    private String fromEmail;
+
+    @Value("${app.email.enabled:false}")
+    private boolean emailEnabled;
+
+    @Async("taskExecutor")
+    public void sendOtpEmail(String toEmail, String otpCode) {
+        // ALWAYS log OTP to console (for debugging and fallback)
+        System.out.println("========================================");
+        System.out.println("OTP CODE GENERATED:");
+        System.out.println("To: " + toEmail);
+        System.out.println("OTP Code: " + otpCode);
+        System.out.println("Expires in: 10 minutes");
+        System.out.println("========================================");
+        
+        if (!emailEnabled || mailSender == null) {
+            System.out.println("Email not configured - OTP logged above");
+            return;
+        }
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Your Willows RTA Login Code");
+            message.setText(buildOtpEmailBody(otpCode));
+            
+            mailSender.send(message);
+            System.out.println("✅ OTP email sent successfully to: " + toEmail);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send email to " + toEmail + ": " + e.getMessage());
+            System.out.println("⚠️  Email failed but OTP is logged above - you can still use it!");
+        }
+    }
+
+    public void sendWelcomeEmail(String toEmail, String memberName) {
+        if (!emailEnabled || mailSender == null) {
+            System.out.println("Welcome email would be sent to: " + toEmail);
+            return;
+        }
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Welcome to The Willows RTA");
+            message.setText(buildWelcomeEmailBody(memberName));
+            
+            mailSender.send(message);
+            
+        } catch (Exception e) {
+            System.err.println("Failed to send welcome email: " + e.getMessage());
+        }
+    }
+
+    private String buildOtpEmailBody(String otpCode) {
+        return "Dear Member,\n\n" +
+               "Your verification code for The Willows RTA portal is:\n\n" +
+               otpCode + "\n\n" +
+               "This code will expire in 10 minutes.\n\n" +
+               "If you did not request this code, please ignore this email.\n\n" +
+               "Best regards,\n" +
+               "The Willows RTA Committee";
+    }
+
+    private String buildWelcomeEmailBody(String memberName) {
+        return "Dear " + memberName + ",\n\n" +
+               "Welcome to The Willows Recognised Tenants' Association!\n\n" +
+               "Your registration has been successful. You can now login to the portal.\n\n" +
+               "Best regards,\n" +
+               "The Willows RTA Committee";
+    }
+
+    public boolean isEmailConfigured() {
+        return emailEnabled && mailSender != null;
+    }
+}
