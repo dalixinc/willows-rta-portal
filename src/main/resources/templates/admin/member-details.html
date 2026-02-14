@@ -174,13 +174,17 @@
                         <h4>Account Actions</h4>
                         <div class="account-actions" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
                             
-                            <!-- Reset Password -->
-                            <form th:action="@{/admin/members/reset-password/{id}(id=${member.id})}" method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-warning" 
-                                        onclick="return confirm('Reset password for this member? They will be required to change it on next login.')">
-                                    🔑 Reset Password
-                                </button>
-                            </form>
+                            <!-- Reset Password with Options -->
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <form th:action="@{/admin/members/reset-password/{id}(id=${member.id})}" method="post" style="display: inline-flex; gap: 10px; align-items: center;">
+                                    <input type="password" name="customPassword" placeholder="Custom password (optional)" 
+                                           style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-width: 200px;">
+                                    <button type="submit" class="btn btn-warning">
+                                        🔑 Reset Password
+                                    </button>
+                                </form>
+                                <small style="color: #666;">Leave blank for auto-generated password</small>
+                            </div>
                             
                             <!-- Change Role -->
                             <form th:if="${user != null && !user.systemAdmin}" 

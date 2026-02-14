@@ -113,6 +113,10 @@ public class ResendEmailService {
                otpCode +
                "</div>" +
                "<p>This code will expire in <strong>10 minutes</strong>.</p>" +
+               "<div style='background-color: #fff3cd; border-left: 4px solid #ff0000; padding: 12px; margin: 20px 0;'>" +
+               "<p style='margin: 0; color: #d32f2f; font-weight: bold;'>⚠️ IMPORTANT: Check your junk/spam folder!</p>" +
+               "<p style='margin: 5px 0 0 0; font-size: 0.9em;'>If you don't see this email in your inbox, please check your spam or junk mail folder. Add <strong>noreply@willows.top</strong> to your contacts to prevent this in future.</p>" +
+               "</div>" +
                "<p>If you did not request this code, please ignore this email.</p>" +
                "<p style='margin-top: 30px;'>Best regards,<br>The Willows RTA Committee</p>" +
                "</div>" +
