@@ -1,8 +1,10 @@
 package com.willows.rta.controller;
 
 import com.willows.rta.model.Member;
+import com.willows.rta.model.Notice;
 import com.willows.rta.model.User;
 import com.willows.rta.service.MemberService;
+import com.willows.rta.service.NoticeService;
 import com.willows.rta.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,24 +15,37 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 public class PublicController {
 
     private final MemberService memberService;
     private final UserService userService;
+    private final NoticeService noticeService;
 
     @Value("${app.self-registration.enabled:true}")
     private boolean selfRegistrationEnabled;
 
     @Autowired
-    public PublicController(MemberService memberService, UserService userService) {
+    public PublicController(MemberService memberService, UserService userService, NoticeService noticeService) {
         this.memberService = memberService;
         this.userService = userService;
+        this.noticeService = noticeService;
     }
 
     // Home page
     @GetMapping("/")
-    public String home() {
+    public String home(Model model) {
+        // Get all pinned notices for homepage
+        List<Notice> allNotices = noticeService.getAllNotices();
+        List<Notice> pinnedNotices = allNotices.stream()
+                .filter(Notice::isPinned)
+                .toList();
+        
+        if (!pinnedNotices.isEmpty()) {
+            model.addAttribute("pinnedNotices", pinnedNotices);
+        }
         return "index";
     }
 

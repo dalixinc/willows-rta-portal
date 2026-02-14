@@ -24,7 +24,11 @@ public class NoticeController {
      * Show notice board (public - all logged-in users)
      */
     @GetMapping
-    public String showNoticeBoard(Model model) {
+    public String showNoticeBoard(Model model, Authentication authentication) {
+        // Check if user is admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("notices", noticeService.getAllNotices());
         return "notices";
     }

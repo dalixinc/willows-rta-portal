@@ -15,6 +15,31 @@
 
         <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 
+        <!-- Pinned Notices -->
+        <div th:if="${pinnedNotices}" class="pinned-notices-section">
+            <div class="pinned-section-header">
+                <h2>📌 Important Notices</h2>
+                <p>Pinned announcements for all residents</p>
+            </div>
+            
+            <div th:each="notice : ${pinnedNotices}" class="pinned-notice-card">
+                <div class="notice-banner-header">
+                    <span class="notice-badge">📌 PINNED</span>
+                    <span class="notice-date" th:text="${#temporals.format(notice.createdAt, 'dd MMM yyyy')}">Date</span>
+                </div>
+                <h3 class="notice-banner-title" th:text="${notice.title}">Notice Title</h3>
+                <p class="notice-banner-content" th:text="${notice.content}">Notice content...</p>
+                <div class="notice-banner-footer">
+                    <span class="notice-author">Posted by <strong th:text="${notice.createdBy}">Admin</strong></span>
+                </div>
+            </div>
+            
+            <div class="login-prompt">
+                <p>💬 <strong>Members:</strong> Login to see all notices and stay up to date with community news</p>
+                <a href="/login" class="btn btn-primary">Member Login</a>
+            </div>
+        </div>
+
         <div class="home-content">
             <section class="welcome-section">
                 <h3>Welcome to Our Community Portal</h3>

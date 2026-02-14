@@ -18,7 +18,15 @@
             </div>
         </header>
 
-        <nav class="member-nav">
+        <nav th:if="${isAdmin}" class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members">Members</a>
+            <a href="/member/directory" class="active">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <nav th:unless="${isAdmin}" class="member-nav">
             <a href="/member/dashboard">Dashboard</a>
             <a href="/member/directory" class="active">Members Directory</a>
             <a href="/notices">Notice Board</a>
@@ -60,7 +68,7 @@
                                 <td>
                                     <a th:href="'mailto:' + ${member.email}" th:text="${member.email}">email@example.com</a>
                                 </td>
-                                <td th:text="${member.phone}">Phone</td>
+                                <td th:text="${member.phoneNumber}">Phone</td>
                                 <td th:text="${member.address}">Address</td>
                                 <td>
                                     <span th:if="${member.leaseholder}" class="badge badge-success">Yes</span>
@@ -72,8 +80,8 @@
                                     <span th:if="${member.membershipStatus == 'TERMINATED'}" class="badge badge-error">Terminated</span>
                                 </td>
                                 <td>
-                                    <span th:if="${member.user != null}" class="badge badge-success">Yes</span>
-                                    <span th:unless="${member.user != null}" class="badge badge-info">No</span>
+                                    <span th:if="${member.hasUserAccount}" class="badge badge-success">Yes</span>
+                                    <span th:unless="${member.hasUserAccount}" class="badge badge-info">No</span>
                                 </td>
                             </tr>
                         </tbody>

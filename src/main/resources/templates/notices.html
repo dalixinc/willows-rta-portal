@@ -69,7 +69,15 @@
             </div>
         </header>
 
-        <nav class="member-nav">
+        <nav th:if="${isAdmin}" class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members">Members</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices" class="active">Notice Board</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <nav th:unless="${isAdmin}" class="member-nav">
             <a href="/member/dashboard">Dashboard</a>
             <a href="/member/directory">Members Directory</a>
             <a href="/notices" class="active">Notice Board</a>
