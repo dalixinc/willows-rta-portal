@@ -626,6 +626,96 @@ app.mfa.enabled=true
 
 ---
 
+## 📌 Notice Board Management (NEW v1.0.4)
+
+### Overview
+The Notice Board allows admins to post announcements, updates, and important information for all members.
+
+### Creating a Notice
+
+**Path:** Notice Board → "+ Create Notice"
+
+1. Click **"+ Create Notice"** button
+2. Enter **Title** (e.g., "Annual General Meeting - 15th March")
+3. Enter **Content** (multi-line supported)
+4. Click **"Post Notice"**
+
+**Tips:**
+- Keep titles clear and concise
+- Use proper formatting in content
+- Important notices should be pinned
+- Include dates/times for events
+
+### Editing a Notice
+
+1. Go to Notice Board
+2. Find the notice
+3. Click **"Edit"** button
+4. Update title or content
+5. Click **"Update Notice"**
+
+**Note:** Original post date and author are preserved
+
+### Pinning Notices
+
+**Important notices appear at the top!**
+
+1. Find the notice
+2. Click **"📌 Pin"** button
+3. Notice moves to top with pin badge
+4. Click **"Unpin"** to remove pin
+
+**Use For:**
+- Urgent announcements
+- Upcoming meetings
+- Important deadlines
+- Emergency notices
+
+### Deleting Notices
+
+1. Find the notice
+2. Click **"Delete"** button
+3. Confirm deletion
+
+**Warning:** Deletion is permanent!
+
+### Member View
+
+**All logged-in members can:**
+- View all notices
+- See who posted and when
+- Access via "Notice Board" navigation link
+
+**Members cannot:**
+- Create notices
+- Edit notices
+- Delete notices
+- Pin/unpin notices
+
+---
+
+## 👁️ Enhanced Member Directory (NEW v1.0.4)
+
+### Admin View
+Admins now see **full member information** in the Members Directory:
+- Name, Flat/Unit
+- Email, Phone
+- **Full Address**
+- Leaseholder status
+- Membership status
+- **Login Account Status** (Yes/No)
+
+### Member View
+Regular members see **limited information** for privacy:
+- Name, Flat/Unit
+- Email only
+- Leaseholder status
+- Membership status
+
+This ensures admins have necessary contact details while protecting member privacy.
+
+---
+
 ## 📞 Support
 
 **Documentation Files:**
@@ -642,5 +732,5 @@ See `TROUBLESHOOTING.md`
 
 ---
 
-**Version:** 1.0.2  
+**Version:** 1.0.4  
 **Last Updated:** February 2026

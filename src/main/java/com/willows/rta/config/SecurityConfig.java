@@ -29,6 +29,9 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/login-with-otp", "/verify-otp", "/resend-otp").permitAll()
                 // Admin-only pages
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                // Notice board - admin can create/edit, all authenticated users can view
+                .requestMatchers("/notices/create", "/notices/edit/**", "/notices/delete/**", "/notices/toggle-pin/**").hasRole("ADMIN")
+                .requestMatchers("/notices").authenticated()
                 // Member pages (both admin and members can access)
                 .requestMatchers("/member/**").hasAnyRole("ADMIN", "MEMBER")
                 // All other pages require authentication

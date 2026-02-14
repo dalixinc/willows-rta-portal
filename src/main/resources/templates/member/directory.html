@@ -21,6 +21,7 @@
         <nav class="member-nav">
             <a href="/member/dashboard">Dashboard</a>
             <a href="/member/directory" class="active">Members Directory</a>
+            <a href="/notices">Notice Board</a>
             <a href="/member/profile">My Profile</a>
             <a href="/constitution">Constitution</a>
         </nav>
@@ -37,35 +38,80 @@
             </div>
 
             <div class="members-directory-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Flat/Unit</th>
-                            <th>Email</th>
-                            <th>Leaseholder</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="member : ${members}">
-                            <td th:text="${member.fullName}">John Doe</td>
-                            <td th:text="${member.flatNumber}">12A</td>
-                            <td>
-                                <a th:href="'mailto:' + ${member.email}" th:text="${member.email}">email@example.com</a>
-                            </td>
-                            <td>
-                                <span th:if="${member.leaseholder}" class="badge badge-success">Yes</span>
-                                <span th:unless="${member.leaseholder}" class="badge badge-info">No</span>
-                            </td>
-                            <td>
-                                <span th:if="${member.membershipStatus == 'ACTIVE'}" class="badge badge-success">Active</span>
-                                <span th:if="${member.membershipStatus == 'SUSPENDED'}" class="badge badge-warning">Suspended</span>
-                                <span th:if="${member.membershipStatus == 'TERMINATED'}" class="badge badge-error">Terminated</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <!-- Admin View - Full Details -->
+                <div th:if="${isAdmin}">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Flat/Unit</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Leaseholder</th>
+                                <th>Status</th>
+                                <th>Has Login</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="member : ${members}">
+                                <td th:text="${member.fullName}">John Doe</td>
+                                <td th:text="${member.flatNumber}">12A</td>
+                                <td>
+                                    <a th:href="'mailto:' + ${member.email}" th:text="${member.email}">email@example.com</a>
+                                </td>
+                                <td th:text="${member.phone}">Phone</td>
+                                <td th:text="${member.address}">Address</td>
+                                <td>
+                                    <span th:if="${member.leaseholder}" class="badge badge-success">Yes</span>
+                                    <span th:unless="${member.leaseholder}" class="badge badge-info">No</span>
+                                </td>
+                                <td>
+                                    <span th:if="${member.membershipStatus == 'ACTIVE'}" class="badge badge-success">Active</span>
+                                    <span th:if="${member.membershipStatus == 'SUSPENDED'}" class="badge badge-warning">Suspended</span>
+                                    <span th:if="${member.membershipStatus == 'TERMINATED'}" class="badge badge-error">Terminated</span>
+                                </td>
+                                <td>
+                                    <span th:if="${member.user != null}" class="badge badge-success">Yes</span>
+                                    <span th:unless="${member.user != null}" class="badge badge-info">No</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Regular Member View - Limited Details -->
+                <div th:unless="${isAdmin}">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Flat/Unit</th>
+                                <th>Email</th>
+                                <th>Leaseholder</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="member : ${members}">
+                                <td th:text="${member.fullName}">John Doe</td>
+                                <td th:text="${member.flatNumber}">12A</td>
+                                <td>
+                                    <a th:href="'mailto:' + ${member.email}" th:text="${member.email}">email@example.com</a>
+                                </td>
+                                <td>
+                                    <span th:if="${member.leaseholder}" class="badge badge-success">Yes</span>
+                                    <span th:unless="${member.leaseholder}" class="badge badge-info">No</span>
+                                </td>
+                                <td>
+                                    <span th:if="${member.membershipStatus == 'ACTIVE'}" class="badge badge-success">Active</span>
+                                    <span th:if="${member.membershipStatus == 'SUSPENDED'}" class="badge badge-warning">Suspended</span>
+                                    <span th:if="${member.membershipStatus == 'TERMINATED'}" class="badge badge-error">Terminated</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="directory-footer">

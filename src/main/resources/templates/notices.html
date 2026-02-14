@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice Board - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .notice-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .notice-card.pinned {
+            border-left: 4px solid #2c5f2d;
+            background: #f0f9ff;
+        }
+        .notice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        .notice-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+        .notice-meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+        .notice-content {
+            color: #374151;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .notice-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .pin-badge {
+            display: inline-block;
+            background: #2c5f2d;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>📌 Notice Board</h1>
+            <div class="user-info">
+                <span>Welcome, <span sec:authentication="name">User</span></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="member-nav">
+            <a href="/member/dashboard">Dashboard</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices" class="active">Notice Board</a>
+            <a href="/member/profile">My Profile</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <!-- Admin Actions -->
+        <div sec:authorize="hasRole('ADMIN')" style="margin-bottom: 20px;">
+            <a href="/notices/create" class="btn btn-primary">+ Create Notice</a>
+        </div>
+
+        <!-- Notices List -->
+        <div class="notices-list">
+            <div th:if="${#lists.isEmpty(notices)}" class="alert alert-info">
+                No notices yet. Check back later for updates!
+            </div>
+
+            <div th:each="notice : ${notices}" class="notice-card" th:classappend="${notice.pinned} ? 'pinned'">
+                <div class="notice-header">
+                    <div>
+                        <h3 class="notice-title">
+                            <span th:if="${notice.pinned}" class="pin-badge">📌 PINNED</span>
+                            <span th:text="${notice.title}">Notice Title</span>
+                        </h3>
+                        <div class="notice-meta">
+                            Posted by <strong th:text="${notice.createdBy}">Admin</strong> on 
+                            <span th:text="${#temporals.format(notice.createdAt, 'dd MMM yyyy, HH:mm')}">Date</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notice-content" th:text="${notice.content}">
+                    Notice content goes here...
+                </div>
+
+                <!-- Admin Actions -->
+                <div sec:authorize="hasRole('ADMIN')" class="notice-actions">
+                    <form th:action="@{/notices/toggle-pin/{id}(id=${notice.id})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-small btn-secondary">
+                            <span th:if="${notice.pinned}">Unpin</span>
+                            <span th:unless="${notice.pinned}">📌 Pin</span>
+                        </button>
+                    </form>
+                    <a th:href="@{/notices/edit/{id}(id=${notice.id})}" class="btn btn-small">Edit</a>
+                    <form th:action="@{/notices/delete/{id}(id=${notice.id})}" method="post" 
+                          onsubmit="return confirm('Are you sure you want to delete this notice?')" style="display: inline;">
+                        <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

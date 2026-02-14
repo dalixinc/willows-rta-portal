@@ -9,13 +9,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Planned Features
-- PostgreSQL database migration
-- Admin email notifications
+- Admin email broadcasts to all members
 - Batch member import (CSV)
 - Member profile photo upload
 - Meeting minutes management
 - Document library
 - SMS OTP as alternative to email
+- Events calendar
+
+---
+
+## [1.0.4] - 2026-02-13
+
+### Added - Notice Board
+- **Notice Board Feature**: Admins can post announcements visible to all members
+- **Create Notices**: Admin interface for posting news and updates
+- **Edit Notices**: Update existing notices
+- **Pin Notices**: Pin important notices to top of board
+- **Delete Notices**: Remove outdated notices
+- **Member Access**: All logged-in members can view notices
+
+### Added - Enhanced Admin View
+- **Full Member Directory**: Admins see complete contact information
+- **Phone Numbers**: Visible to admins only
+- **Full Addresses**: Visible to admins only  
+- **Login Status**: Shows if member has login account
+- **Privacy Protection**: Regular members still see limited info
+
+### Technical Changes
+- New database table: `notices`
+- New entity: `Notice.java`
+- New repository: `NoticeRepository.java`
+- New service: `NoticeService.java`
+- New controller: `NoticeController.java`
+- Updated: `SecurityConfig.java` (notice board routes)
+- Updated: `MemberController.java` (admin flag)
+- Updated: `member/directory.html` (admin vs member views)
+- Added templates: `notices.html`, `notice-create.html`, `notice-edit.html`
+- Navigation updated across all member pages
+
+### Production Ready
+- **PostgreSQL**: Migrated from H2 to PostgreSQL on Railway
+- **Resend Email**: Replaced Gmail SMTP with Resend API
+- **Async Email**: Non-blocking email sends
+- **Railway Deployment**: Live on Railway cloud platform
+- **Custom Domain Ready**: willows.top configured
+
+**Total Files Changed:** 12  
+**New Features:** 2 major (Notice Board, Enhanced Directory)
 
 ---
 

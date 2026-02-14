@@ -13,14 +13,17 @@ A comprehensive membership portal for "The Willows" Recognised Tenants' Associat
 ### Member Features
 - 👤 **Member Dashboard** - Personal portal for registered members
 - 📄 **Profile Access** - View membership details
-- 📋 **Members Directory** - Privacy-focused directory of active members
+- 👥 **Members Directory** - Privacy-focused directory of active members
+- 📌 **Notice Board** - View announcements and important updates (NEW v1.0.4)
 - 🔑 **Change Password** - Self-service password management
 - 📋 **Constitution Access** - Always accessible to members
 
 ### Admin Features
 - 📊 **Admin Dashboard** - Overview of membership statistics
 - 👥 **Member Management** - View, edit, and manage all member registrations
-- ➕ **Add Members Manually** - Add members from paper forms or email (NEW v1.0.3)
+- 👁️ **Enhanced Member Directory** - View full contact details including phone, address, login status (NEW v1.0.4)
+- ➕ **Add Members Manually** - Add members from paper forms or email
+- 📌 **Notice Board Management** - Create, edit, delete, and pin announcements (NEW v1.0.4)
 - 👑 **Role Management** - Promote members to admin or demote to member
 - 🔐 **Account Security** - Lock/unlock accounts, reset passwords, clear failed login attempts
 - 🔧 **Status Management** - Update membership status (Active/Suspended/Terminated)
@@ -31,14 +34,17 @@ A comprehensive membership portal for "The Willows" Recognised Tenants' Associat
 
 ## Technologies Used
 
-- **Java 17**
+- **Java 21**
 - **Spring Boot 3.2.1**
   - Spring Web
   - Spring Data JPA
   - **Spring Security** (for authentication)
   - Thymeleaf (Template Engine)
-- **H2 Database** (file-based with AES encryption, upgradeable to PostgreSQL/MySQL)
+- **PostgreSQL** (production database on Railway)
+- **H2 Database** (optional for local development)
+- **Resend** (email service for OTP/notifications)
 - **Maven** (dependency management)
+- **Railway** (cloud hosting platform)
 
 ## Security Features
 

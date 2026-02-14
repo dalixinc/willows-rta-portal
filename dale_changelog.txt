@@ -56,3 +56,27 @@ General notice board
 
 
 Chat page
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===========================================================================
+
+DBMS: PostgreSQL (ver. 18.1)
+Case sensitivity: plain=lower, delimited=exact
+Driver: PostgreSQL JDBC Driver (ver. 42.7.3, JDBC4.2)
+
+Ping: 23 ms
+SSL: no

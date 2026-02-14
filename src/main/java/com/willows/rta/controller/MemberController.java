@@ -39,7 +39,12 @@ public class MemberController {
     public String viewDirectory(Model model, Authentication authentication) {
         model.addAttribute("username", authentication.getName());
         
-        // Get only active members for directory (limited PII)
+        // Check if user is admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+        
+        // Get only active members for directory
         List<Member> activeMembers = memberService.getMembersByStatus("ACTIVE");
         model.addAttribute("members", activeMembers);
         
