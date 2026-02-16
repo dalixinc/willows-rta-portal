@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/chat")
@@ -98,5 +99,52 @@ public class ChatController {
         response.put("success", true);
         response.put("message", message);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Delete a message (admin can delete any, user can delete their own)
+     */
+    @PostMapping("/messages/{id}/delete")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteMessage(
+            @PathVariable Long id,
+            Authentication authentication) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Get the message
+            Optional<ChatMessage> messageOpt = chatService.getMessageById(id);
+            if (messageOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Message not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            ChatMessage message = messageOpt.get();
+            
+            // Check permissions
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+            boolean isOwner = message.getSenderName().equals(authentication.getName());
+            
+            if (!isAdmin && !isOwner) {
+                response.put("success", false);
+                response.put("message", "You can only delete your own messages");
+                return ResponseEntity.status(403).body(response);
+            }
+            
+            // Delete the message
+            chatService.deleteMessage(id);
+            
+            response.put("success", true);
+            response.put("messageId", id);
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error deleting message: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 }

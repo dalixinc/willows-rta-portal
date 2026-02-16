@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChatService {
@@ -65,5 +66,20 @@ public class ChatService {
             List<ChatMessage> toDelete = allMessages.subList(keepLastN, allMessages.size());
             chatMessageRepository.deleteAll(toDelete);
         }
+    }
+
+    /**
+     * Get a specific message by ID
+     */
+    public Optional<ChatMessage> getMessageById(Long id) {
+        return chatMessageRepository.findById(id);
+    }
+
+    /**
+     * Delete a specific message
+     */
+    @Transactional
+    public void deleteMessage(Long id) {
+        chatMessageRepository.deleteById(id);
     }
 }

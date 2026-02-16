@@ -35,6 +35,15 @@ public class OtpService {
         // Generate new 6-digit OTP
         String otpCode = generateOtpCode();
 
+        // LOG IMMEDIATELY (before async call)
+            //System.out.println("========================================");
+            //System.out.println("🔐 OTP GENERATED FOR LOGIN");
+            //System.out.println("Username: " + username);
+            //System.out.println("Email: " + email);
+            //System.out.println("OTP Code: " + otpCode);
+            //System.out.println("Valid for: " + OTP_VALIDITY_MINUTES + " minutes");
+            //System.out.println("========================================");
+
         // Save to database
         OtpCode otp = new OtpCode(username, otpCode, OTP_VALIDITY_MINUTES);
         otpRepository.save(otp);
