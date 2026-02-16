@@ -33,6 +33,9 @@ logs/
 *.swp
 *~
 
+# Zip Folder
+zips/
+
 # Application properties with sensitive data (if you have a separate prod config)
 application-prod.properties
 application-local.properties

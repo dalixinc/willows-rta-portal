@@ -52,14 +52,21 @@ verify & login button should also respond to enter pressed
 
 Front page notice
 
-General notice board
+General notice board  - make more prominent
+
+
+lost the red for an admin account
+
+Update email body to include a check in junk (in red)
+When admin resets a password, should have the option of chosing a password too
+Users can change their own passwords
 
 
 Chat page
 
 
 
-
+Export member list
 
 
 

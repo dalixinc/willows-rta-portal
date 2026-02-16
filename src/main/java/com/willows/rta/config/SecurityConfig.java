@@ -32,6 +32,8 @@ public class SecurityConfig {
                 // Notice board - admin can create/edit, all authenticated users can view
                 .requestMatchers("/notices/create", "/notices/edit/**", "/notices/delete/**", "/notices/toggle-pin/**").hasRole("ADMIN")
                 .requestMatchers("/notices").authenticated()
+                // Community chat - all authenticated users
+                .requestMatchers("/chat", "/chat/**").authenticated()
                 // Member pages (both admin and members can access)
                 .requestMatchers("/member/**").hasAnyRole("ADMIN", "MEMBER")
                 // All other pages require authentication
