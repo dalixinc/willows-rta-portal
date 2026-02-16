@@ -82,4 +82,17 @@ public class ChatService {
     public void deleteMessage(Long id) {
         chatMessageRepository.deleteById(id);
     }
+
+    /**
+     * Update a message content
+     */
+    @Transactional
+    public void updateMessage(Long id, String newContent) {
+        Optional<ChatMessage> messageOpt = chatMessageRepository.findById(id);
+        if (messageOpt.isPresent()) {
+            ChatMessage message = messageOpt.get();
+            message.setContent(newContent);
+            chatMessageRepository.save(message);
+        }
+    }
 }

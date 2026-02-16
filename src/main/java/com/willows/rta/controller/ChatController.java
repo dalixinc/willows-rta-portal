@@ -147,4 +147,64 @@ public class ChatController {
             return ResponseEntity.status(500).body(response);
         }
     }
+
+    /**
+     * Edit a message (user can edit their own messages)
+     */
+    @PostMapping("/messages/{id}/edit")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> editMessage(
+            @PathVariable Long id,
+            @RequestParam String content,
+            Authentication authentication) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Validate content
+            if (content == null || content.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Message cannot be empty");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (content.length() > 1000) {
+                response.put("success", false);
+                response.put("message", "Message too long (max 1000 characters)");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // Get the message
+            Optional<ChatMessage> messageOpt = chatService.getMessageById(id);
+            if (messageOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Message not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            ChatMessage message = messageOpt.get();
+            
+            // Check permissions (only owner can edit)
+            boolean isOwner = message.getSenderName().equals(authentication.getName());
+            
+            if (!isOwner) {
+                response.put("success", false);
+                response.put("message", "You can only edit your own messages");
+                return ResponseEntity.status(403).body(response);
+            }
+            
+            // Update the message
+            chatService.updateMessage(id, content.trim());
+            
+            response.put("success", true);
+            response.put("messageId", id);
+            response.put("newContent", content.trim());
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error editing message: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
 }
