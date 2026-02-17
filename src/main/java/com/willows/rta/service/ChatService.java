@@ -7,14 +7,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
+    
+    // Track deleted and edited messages for real-time updates
+    private final Set<Long> deletedMessageIds = ConcurrentHashMap.newKeySet();
+    private final Map<Long, ChatMessage> editedMessages = new ConcurrentHashMap<>();
 
     @Autowired
     public ChatService(ChatMessageRepository chatMessageRepository) {
@@ -87,12 +90,48 @@ public class ChatService {
      * Update a message content
      */
     @Transactional
-    public void updateMessage(Long id, String newContent) {
+    public ChatMessage updateMessage(Long id, String newContent) {
         Optional<ChatMessage> messageOpt = chatMessageRepository.findById(id);
         if (messageOpt.isPresent()) {
             ChatMessage message = messageOpt.get();
             message.setContent(newContent);
-            chatMessageRepository.save(message);
+            ChatMessage updated = chatMessageRepository.save(message);
+            return updated;
         }
+        return null;
+    }
+
+    /**
+     * Notify that a message was deleted
+     */
+    public void notifyMessageDeleted(Long messageId) {
+        deletedMessageIds.add(messageId);
+    }
+
+    /**
+     * Notify that a message was edited
+     */
+    public void notifyMessageEdited(ChatMessage message) {
+        if (message != null) {
+            editedMessages.put(message.getId(), message);
+        }
+    }
+
+    /**
+     * Get and clear deleted message IDs (for polling)
+     */
+    public List<Long> getAndClearDeletedIds() {
+        List<Long> ids = new ArrayList<>(deletedMessageIds);
+        deletedMessageIds.clear();
+        return ids;
+    }
+
+    /**
+     * Get and clear edited messages (for polling)
+     */
+    public List<ChatMessage> getAndClearEditedMessages() {
+        List<ChatMessage> messages = new ArrayList<>(editedMessages.values());
+        editedMessages.clear();
+        return messages;
     }
 }

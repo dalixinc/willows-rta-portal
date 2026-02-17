@@ -52,12 +52,20 @@ public class ChatController {
 
     /**
      * Get new messages after a specific ID (for polling)
+     * Also returns list of deleted/edited message IDs
      */
     @GetMapping("/messages/new")
     @ResponseBody
-    public ResponseEntity<List<ChatMessage>> getNewMessages(@RequestParam(required = false) Long lastId) {
+    public ResponseEntity<Map<String, Object>> getNewMessages(@RequestParam(required = false) Long lastId) {
         List<ChatMessage> newMessages = chatService.getNewMessages(lastId);
-        return ResponseEntity.ok(newMessages);
+        
+        // Return both new messages and change notifications
+        Map<String, Object> response = new HashMap<>();
+        response.put("newMessages", newMessages);
+        response.put("deletedIds", chatService.getAndClearDeletedIds());
+        response.put("editedMessages", chatService.getAndClearEditedMessages());
+        
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -137,6 +145,9 @@ public class ChatController {
             // Delete the message
             chatService.deleteMessage(id);
             
+            // Notify other clients
+            chatService.notifyMessageDeleted(id);
+            
             response.put("success", true);
             response.put("messageId", id);
             return ResponseEntity.ok(response);
@@ -194,7 +205,10 @@ public class ChatController {
             }
             
             // Update the message
-            chatService.updateMessage(id, content.trim());
+            ChatMessage updatedMessage = chatService.updateMessage(id, content.trim());
+            
+            // Notify other clients
+            chatService.notifyMessageEdited(updatedMessage);
             
             response.put("success", true);
             response.put("messageId", id);

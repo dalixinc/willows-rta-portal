@@ -363,23 +363,49 @@
             }
         }
 
-        // Poll for new messages
+        // Poll for new messages and changes
         async function pollNewMessages() {
             if (isLoadingMessages) return;
             
             try {
                 isLoadingMessages = true;
                 const response = await fetch(`/chat/messages/new?lastId=${lastMessageId}`);
-                const newMessages = await response.json();
+                const data = await response.json();
                 
-                if (newMessages.length > 0) {
+                // Handle deleted messages
+                if (data.deletedIds && data.deletedIds.length > 0) {
+                    data.deletedIds.forEach(id => {
+                        const messageDiv = document.querySelector(`[data-message-id="${id}"]`);
+                        if (messageDiv) {
+                            messageDiv.style.opacity = '0';
+                            setTimeout(() => messageDiv.remove(), 300);
+                        }
+                    });
+                }
+                
+                // Handle edited messages
+                if (data.editedMessages && data.editedMessages.length > 0) {
+                    data.editedMessages.forEach(msg => {
+                        const messageDiv = document.querySelector(`[data-message-id="${msg.id}"]`);
+                        if (messageDiv) {
+                            const messageBubble = messageDiv.querySelector('.message-bubble');
+                            if (messageBubble) {
+                                messageBubble.setAttribute('data-original-content', msg.content);
+                                messageBubble.innerHTML = escapeHtml(msg.content) + ' <span class="edited-badge">(edited)</span>';
+                            }
+                        }
+                    });
+                }
+                
+                // Handle new messages
+                if (data.newMessages && data.newMessages.length > 0) {
                     const container = document.getElementById('chatMessages');
                     const emptyState = container.querySelector('.empty-state');
                     if (emptyState) {
                         container.innerHTML = '';
                     }
                     
-                    newMessages.forEach(msg => {
+                    data.newMessages.forEach(msg => {
                         appendMessage(msg);
                         lastMessageId = msg.id;
                     });
