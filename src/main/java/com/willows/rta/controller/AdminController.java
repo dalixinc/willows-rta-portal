@@ -41,7 +41,8 @@ public class AdminController {
 
     // View all members
     @GetMapping("/members")
-    public String viewAllMembers(Model model) {
+    public String viewAllMembers(Model model, Authentication authentication) {
+    model.addAttribute("username", authentication.getName());  // ← ADD THIS
         List<Member> members = memberService.getAllMembers();
         
         // Populate user status for each member

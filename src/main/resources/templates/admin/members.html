@@ -11,6 +11,7 @@
         <header class="site-header">
             <h1>👥 Member Management</h1>
             <div class="user-info">
+                <span>Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-small btn-secondary">Logout</button>
                 </form>
@@ -22,6 +23,7 @@
             <a href="/admin/members" class="active">Members</a>
             <a href="/member/directory">Members Directory</a>
             <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
             <a href="/constitution">Constitution</a>
         </nav>
 
