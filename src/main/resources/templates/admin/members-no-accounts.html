@@ -22,6 +22,9 @@
             <a href="/admin/members">Members</a>
             <a href="/member/directory">Members Directory</a>
             <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics">Analytics</a>        <!-- NEW -->
+            <a href="/admin/blocks">Block Config</a>
             <a href="/constitution">Constitution</a>
         </nav>
 
@@ -61,7 +64,8 @@
                             <td class="action-buttons">
                                 <a th:href="@{/admin/members/{id}(id=${member.id})}" class="btn btn-small btn-info">View Details</a>
                                 <form th:action="@{/admin/members/create-account/{id}(id=${member.id})}" method="post" style="display: inline;">
-                                    <button type="submit" class="btn btn-small btn-primary" onclick="return confirm('Create login account for ' + [[${member.fullName}]] + '?')">
+                                    <button type="submit" class="btn btn-small btn-primary" 
+                                            th:onclick="'return confirm(\'Create login account for ' + ${member.fullName} + '?\');'">
                                         Create Login
                                     </button>
                                 </form>

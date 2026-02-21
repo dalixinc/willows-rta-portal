@@ -1,7 +1,9 @@
 package com.willows.rta.controller;
 
+import com.willows.rta.model.Block;
 import com.willows.rta.model.Member;
 import com.willows.rta.model.User;
+import com.willows.rta.service.BlockService;
 import com.willows.rta.service.MemberService;
 import com.willows.rta.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -21,11 +24,15 @@ public class AdminController {
 
     private final MemberService memberService;
     private final UserService userService;
+    private final BlockService blockService;
+    @Value("${analytics.beta.enabled:false}")
+    private boolean analyticsEnabled;
 
     @Autowired
-    public AdminController(MemberService memberService, UserService userService) {
+    public AdminController(MemberService memberService, UserService userService, BlockService blockService) {
         this.memberService = memberService;
         this.userService = userService;
+        this.blockService = blockService;
     }
 
     // Admin dashboard
@@ -42,7 +49,8 @@ public class AdminController {
     // View all members
     @GetMapping("/members")
     public String viewAllMembers(Model model, Authentication authentication) {
-    model.addAttribute("username", authentication.getName());  // ← ADD THIS
+        model.addAttribute("username", authentication.getName());
+        
         List<Member> members = memberService.getAllMembers();
         
         // Populate user status for each member
@@ -99,43 +107,23 @@ public class AdminController {
                 } else {
                     // Validate manual password
                     if (!accountPassword.equals(confirmPassword)) {
-                        model.addAttribute("errorMessage", "Passwords do not match");
-                        model.addAttribute("member", member);
-                        return "admin/add-member";
-                    }
-                    
-                    if (accountPassword.length() < 8) {
-                        model.addAttribute("errorMessage", "Password must be at least 8 characters");
+                        model.addAttribute("errorMessage", "Passwords do not match.");
                         model.addAttribute("member", member);
                         return "admin/add-member";
                     }
                 }
                 
-                try {
-                    // Create user account
-                    User newUser = userService.createUser(member.getEmail(), accountPassword, "ROLE_MEMBER");
-                    newUser.setMember(savedMember);
-                    
-                    // Update member record
-                    savedMember.setHasUserAccount(true);
-                    savedMember.setAccountCreationMethod("ADMIN_CREATED");
-                    memberService.updateMemberAccountStatus(savedMember.getId(), true, "ADMIN_CREATED");
-                    
-                    redirectAttributes.addFlashAttribute("successMessage", "Member added successfully with login account!");
-                    redirectAttributes.addFlashAttribute("generatedPassword", accountPassword);
-                    redirectAttributes.addFlashAttribute("memberEmail", member.getEmail());
-                    return "redirect:/admin/members/" + savedMember.getId();
-                    
-                } catch (RuntimeException e) {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Member added but login creation failed: " + e.getMessage());
-                    return "redirect:/admin/members/" + savedMember.getId();
-                }
+                // Create user account using YOUR UserService method
+                userService.createUser(savedMember.getEmail(), accountPassword, "ROLE_MEMBER");
+                
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Member added and account created. Email: " + savedMember.getEmail() + 
+                    ", Password: " + accountPassword);
             } else {
-                // No account created
-                redirectAttributes.addFlashAttribute("successMessage", "Member added successfully! You can create a login account later.");
-                return "redirect:/admin/members/" + savedMember.getId();
+                redirectAttributes.addFlashAttribute("successMessage", "Member added successfully (no account created).");
             }
             
+            return "redirect:/admin/members";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Error adding member: " + e.getMessage());
             model.addAttribute("member", member);
@@ -143,106 +131,47 @@ public class AdminController {
         }
     }
 
-    // View members without accounts
-    @GetMapping("/members/no-accounts")
-    public String viewMembersWithoutAccounts(Model model) {
-        model.addAttribute("members", memberService.getMembersWithoutAccounts());
-        return "admin/members-no-accounts";
-    }
-
     // View member details
     @GetMapping("/members/{id}")
     public String viewMemberDetails(@PathVariable Long id, Model model) {
-        Member member = memberService.getMemberById(id)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
-        model.addAttribute("member", member);
-        
-        // If member has user account, get the user details
-        if (member.isHasUserAccount()) {
-            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
-            userOpt.ifPresent(user -> model.addAttribute("user", user));
-        }
-        
-        return "admin/member-details";
-    }
-
-    // Edit member form
-    @GetMapping("/members/edit/{id}")
-    public String editMemberForm(@PathVariable Long id, Model model) {
-        Member member = memberService.getMemberById(id)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
-        model.addAttribute("member", member);
-        return "admin/edit-member";
-    }
-
-    // Update member
-    @PostMapping("/members/update/{id}")
-    public String updateMember(@PathVariable Long id, 
-                              @ModelAttribute Member member,
-                              RedirectAttributes redirectAttributes) {
-        try {
-            memberService.updateMember(id, member);
-            redirectAttributes.addFlashAttribute("successMessage", "Member updated successfully");
-            return "redirect:/admin/members";
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/admin/members/edit/" + id;
-        }
-    }
-
-    // Update membership status
-    @PostMapping("/members/status/{id}")
-    public String updateMembershipStatus(@PathVariable Long id,
-                                        @RequestParam String status,
-                                        RedirectAttributes redirectAttributes) {
-        try {
-            memberService.updateMembershipStatus(id, status);
-            redirectAttributes.addFlashAttribute("successMessage", "Membership status updated");
-            return "redirect:/admin/members";
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/admin/members";
-        }
-    }
-
-    // Create user account for member
-    @PostMapping("/members/create-account/{id}")
-    public String createUserAccount(@PathVariable Long id,
-                                   @RequestParam(required = false) String customPassword,
-                                   RedirectAttributes redirectAttributes) {
-        try {
-            Member member = memberService.getMemberById(id)
-                    .orElseThrow(() -> new RuntimeException("Member not found"));
+        Optional<Member> memberOpt = memberService.getMemberById(id);
+        if (memberOpt.isPresent()) {
+            model.addAttribute("member", memberOpt.get());
             
-            // Check if account already exists
-            if (member.isHasUserAccount()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "This member already has a user account");
-                return "redirect:/admin/members/" + id;
+            // If member has user account, get account details
+            if (memberOpt.get().isHasUserAccount()) {
+                Optional<User> userOpt = userService.getUserByUsername(memberOpt.get().getEmail());
+                userOpt.ifPresent(user -> model.addAttribute("user", user));
             }
             
-            // Generate password if not provided
-            String password = (customPassword != null && !customPassword.trim().isEmpty()) 
-                ? customPassword 
-                : generateTemporaryPassword();
-            
-            // Create user account
-            User newUser = userService.createUser(member.getEmail(), password, "ROLE_MEMBER");
-            newUser.setMember(member);
-            
-            // Update member record
-            memberService.updateMemberAccountStatus(id, true, "ADMIN_CREATED");
-            
-            // Store password in flash to show to admin
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "Login account created successfully!");
-            redirectAttributes.addFlashAttribute("generatedPassword", password);
-            redirectAttributes.addFlashAttribute("memberEmail", member.getEmail());
-            
+            return "admin/member-details";
+        }
+        return "redirect:/admin/members";
+    }
+
+    // Show edit member form
+    @GetMapping("/members/edit/{id}")
+    public String showEditMemberForm(@PathVariable Long id, Model model) {
+        Optional<Member> memberOpt = memberService.getMemberById(id);
+        if (memberOpt.isPresent()) {
+            model.addAttribute("member", memberOpt.get());
+            return "admin/edit-member";
+        }
+        return "redirect:/admin/members";
+    }
+
+    // Handle edit member submission
+    @PostMapping("/members/edit/{id}")
+    public String editMember(@PathVariable Long id, 
+                            @ModelAttribute Member member,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            memberService.updateMember(id, member);
+            redirectAttributes.addFlashAttribute("successMessage", "Member updated successfully.");
             return "redirect:/admin/members/" + id;
-            
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error creating account: " + e.getMessage());
-            return "redirect:/admin/members/" + id;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error updating member: " + e.getMessage());
+            return "redirect:/admin/members/edit/" + id;
         }
     }
 
@@ -250,192 +179,220 @@ public class AdminController {
     @PostMapping("/members/delete/{id}")
     public String deleteMember(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            Member member = memberService.getMemberById(id)
-                    .orElseThrow(() -> new RuntimeException("Member not found"));
-            
-            // If member has a user account, delete it first
-            if (member.isHasUserAccount()) {
-                Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
-                if (userOpt.isPresent()) {
-                    userService.deleteUser(userOpt.get().getId());
-                }
-            }
-            
-            // Now delete the member
             memberService.deleteMember(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Member deleted successfully");
-        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("successMessage", "Member deleted successfully.");
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting member: " + e.getMessage());
         }
         return "redirect:/admin/members";
     }
 
-    // Reset member password
-    @PostMapping("/members/reset-password/{id}")
-    public String resetMemberPassword(@PathVariable Long id,
-                                      @RequestParam(required = false) String customPassword,
-                                      RedirectAttributes redirectAttributes) {
+    // Create user account for member
+    @PostMapping("/members/{id}/create-account")
+    public String createUserAccount(@PathVariable Long id, 
+                                    @RequestParam(required = false) String passwordOption,
+                                    @RequestParam(required = false) String password,
+                                    RedirectAttributes redirectAttributes) {
         try {
-            Member member = memberService.getMemberById(id)
-                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            Optional<Member> memberOpt = memberService.getMemberById(id);
+            if (memberOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Member not found.");
+                return "redirect:/admin/members";
+            }
+
+            Member member = memberOpt.get();
             
-            if (!member.isHasUserAccount()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "This member has no user account");
+            // Check if account already exists
+            if (userService.getUserByUsername(member.getEmail()).isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "User account already exists for this member.");
                 return "redirect:/admin/members/" + id;
             }
-            
-            // Get user account
-            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
-            if (userOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "User account not found");
-                return "redirect:/admin/members/" + id;
+
+            // Determine password
+            String accountPassword = password;
+            if ("auto".equals(passwordOption) || accountPassword == null || accountPassword.trim().isEmpty()) {
+                accountPassword = generateTemporaryPassword();
             }
+
+            // Create account
+            userService.createUser(member.getEmail(), accountPassword, "ROLE_MEMBER");
             
-            User user = userOpt.get();
-            
-            // Generate password if not provided
-            String newPassword = (customPassword != null && !customPassword.trim().isEmpty()) 
-                ? customPassword 
-                : generateTemporaryPassword();
-            
-            // Reset password and require change on next login
-            userService.updatePassword(user.getId(), newPassword);
-            user.setPasswordChangeRequired(true);
-            userService.saveUser(user);
-            
-            // Store password in flash to show to admin
             redirectAttributes.addFlashAttribute("successMessage", 
-                "Password reset successfully!");
-            redirectAttributes.addFlashAttribute("generatedPassword", newPassword);
-            redirectAttributes.addFlashAttribute("memberEmail", member.getEmail());
-            
+                "User account created. Email: " + member.getEmail() + ", Password: " + accountPassword);
             return "redirect:/admin/members/" + id;
-            
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error resetting password: " + e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error creating account: " + e.getMessage());
             return "redirect:/admin/members/" + id;
         }
     }
 
-    // Lock/Unlock user account
-    @PostMapping("/members/toggle-lock/{id}")
-    public String toggleAccountLock(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    // Unlock account
+    @PostMapping("/members/{id}/unlock")
+    public String unlockAccount(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            Member member = memberService.getMemberById(id)
-                    .orElseThrow(() -> new RuntimeException("Member not found"));
-            
-            if (!member.isHasUserAccount()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "This member has no user account");
-                return "redirect:/admin/members/" + id;
+            Optional<Member> memberOpt = memberService.getMemberById(id);
+            if (memberOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Member not found.");
+                return "redirect:/admin/members";
             }
-            
-            // Get user account
-            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
-            if (userOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "User account not found");
-                return "redirect:/admin/members/" + id;
-            }
-            
-            User user = userOpt.get();
-            
-            // Toggle enabled status
-            user.setEnabled(!user.isEnabled());
-            userService.saveUser(user);
-            
-            String status = user.isEnabled() ? "unlocked" : "locked";
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "Account " + status + " successfully!");
-            
-            return "redirect:/admin/members/" + id;
-            
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error toggling account lock: " + e.getMessage());
-            return "redirect:/admin/members/" + id;
-        }
-    }
 
-    // Unlock failed login attempts
-    @PostMapping("/members/unlock-failed-attempts/{id}")
-    public String unlockFailedAttempts(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            Member member = memberService.getMemberById(id)
-                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            Member member = memberOpt.get();
             
-            if (!member.isHasUserAccount()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "This member has no user account");
-                return "redirect:/admin/members/" + id;
-            }
-            
-            // Unlock the account
+            // Use YOUR UserService method (takes username)
             userService.unlockAccount(member.getEmail());
             
-            redirectAttributes.addFlashAttribute("successMessage", 
-                "Failed login attempts cleared and account unlocked!");
-            
+            redirectAttributes.addFlashAttribute("successMessage", "Account unlocked successfully.");
             return "redirect:/admin/members/" + id;
-            
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error unlocking account: " + e.getMessage());
             return "redirect:/admin/members/" + id;
         }
     }
 
-    // Toggle user role (Admin <-> Member)
-    @PostMapping("/members/toggle-role/{id}")
-    public String toggleUserRole(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    // Reset password
+    @PostMapping("/members/{id}/reset-password")
+    public String resetPassword(@PathVariable Long id,
+                               @RequestParam(required = false) String passwordOption,
+                               @RequestParam(required = false) String password,
+                               RedirectAttributes redirectAttributes) {
         try {
-            Member member = memberService.getMemberById(id)
-                    .orElseThrow(() -> new RuntimeException("Member not found"));
-            
-            if (!member.isHasUserAccount()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "This member has no user account");
-                return "redirect:/admin/members/" + id;
+            Optional<Member> memberOpt = memberService.getMemberById(id);
+            if (memberOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Member not found.");
+                return "redirect:/admin/members";
             }
-            
-            // Get user account
+
+            Member member = memberOpt.get();
             Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
+            
             if (userOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "User account not found");
+                redirectAttributes.addFlashAttribute("errorMessage", "No user account found for this member.");
                 return "redirect:/admin/members/" + id;
             }
-            
+
+            // Determine password
+            String newPassword = password;
+            if ("auto".equals(passwordOption) || newPassword == null || newPassword.trim().isEmpty()) {
+                newPassword = generateTemporaryPassword();
+            }
+
             User user = userOpt.get();
+            // Use YOUR UserService method (takes Long userId)
+            userService.updatePassword(user.getId(), newPassword);
             
-            // Prevent changing role of system admin
-            if (user.isSystemAdmin()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Cannot change role of system administrator");
-                return "redirect:/admin/members/" + id;
-            }
-            
-            // Toggle role
-            if ("ROLE_ADMIN".equals(user.getRole())) {
-                user.setRole("ROLE_MEMBER");
-                redirectAttributes.addFlashAttribute("successMessage", "User role changed to Member");
-            } else {
-                user.setRole("ROLE_ADMIN");
-                redirectAttributes.addFlashAttribute("successMessage", "User role changed to Administrator");
-            }
-            
-            userService.saveUser(user);
-            
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Password reset successfully. New password: " + newPassword);
             return "redirect:/admin/members/" + id;
-            
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error changing role: " + e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error resetting password: " + e.getMessage());
             return "redirect:/admin/members/" + id;
         }
     }
 
+    /**
+     * Show block configuration page
+     */
+    @GetMapping("/blocks")
+    public String showBlocksPage(Model model, Authentication authentication) {
+        model.addAttribute("username", authentication.getName());
+        model.addAttribute("blocks", blockService.getAllBlocks());
+        return "admin/blocks";
+    }
+
+    /**
+     * Show add block form
+     */
+    @GetMapping("/blocks/add")
+    public String showAddBlockForm(Model model, Authentication authentication) {
+        model.addAttribute("username", authentication.getName());
+        model.addAttribute("block", new Block());
+        return "admin/block-form";
+    }
+
+    /**
+     * Create new block
+     */
+    @PostMapping("/blocks/add")
+    public String addBlock(@ModelAttribute Block block, RedirectAttributes redirectAttributes) {
+        try {
+            if (blockService.blockNameExists(block.getName())) {
+                redirectAttributes.addFlashAttribute("error", "Block name already exists");
+                return "redirect:/admin/blocks/add";
+            }
+            blockService.createBlock(block);
+            redirectAttributes.addFlashAttribute("success", "Block added successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error adding block: " + e.getMessage());
+        }
+        return "redirect:/admin/blocks";
+    }
+
+    /**
+     * Show edit block form
+     */
+    @GetMapping("/blocks/edit/{id}")
+    public String showEditBlockForm(@PathVariable Long id, Model model, Authentication authentication) {
+        model.addAttribute("username", authentication.getName());
+        Optional<Block> block = blockService.getBlockById(id);
+        if (block.isPresent()) {
+            model.addAttribute("block", block.get());
+            return "admin/block-form";
+        }
+        return "redirect:/admin/blocks";
+    }
+
+    /**
+     * Update block
+     */
+    @PostMapping("/blocks/edit/{id}")
+    public String updateBlock(@PathVariable Long id, @ModelAttribute Block block, RedirectAttributes redirectAttributes) {
+        try {
+            Block updated = blockService.updateBlock(id, block);
+            if (updated != null) {
+                redirectAttributes.addFlashAttribute("success", "Block updated successfully");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Block not found");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error updating block: " + e.getMessage());
+        }
+        return "redirect:/admin/blocks";
+    }
+
+    /**
+     * Delete block
+     */
+    @PostMapping("/blocks/delete/{id}")
+    public String deleteBlock(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            blockService.deleteBlock(id);
+            redirectAttributes.addFlashAttribute("success", "Block deleted successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error deleting block: " + e.getMessage());
+        }
+        return "redirect:/admin/blocks";
+    }
+
+    /**
+     * Show analytics page
+     */
+    @GetMapping("/analytics")
+    public String showAnalyticsPage(Model model, Authentication authentication) {
+        model.addAttribute("username", authentication.getName());
+        model.addAttribute("blockStats", blockService.calculateBlockStats());
+        model.addAttribute("overallStats", blockService.calculateOverallStats());
+        model.addAttribute("analyticsBeta", analyticsEnabled);  // ADD THIS LINE
+        return "admin/analytics";
+}
+
     // Helper method to generate temporary password
     private String generateTemporaryPassword() {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
         SecureRandom random = new SecureRandom();
         StringBuilder password = new StringBuilder(12);
-        
         for (int i = 0; i < 12; i++) {
             password.append(chars.charAt(random.nextInt(chars.length())));
         }
-        
         return password.toString();
     }
 }

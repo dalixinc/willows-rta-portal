@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Configuration - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🏢 Block Configuration</h1>
+            <div class="user-info">
+                <span>Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members">Members</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics">Analytics</a>
+            <a href="/admin/blocks" class="active">Block Config</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="content-section">
+            <div class="section-header">
+                <h2>Manage Blocks</h2>
+                <a href="/admin/blocks/add" class="btn btn-primary">+ Add New Block</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(blocks)}" class="alert alert-info">
+                No blocks configured yet. Click "Add New Block" to get started.
+            </div>
+
+            <table th:if="${!#lists.isEmpty(blocks)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Block Name</th>
+                        <th>Short Name</th>
+                        <th>Total Flats</th>
+                        <th>Display Order</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="block : ${blocks}">
+                        <td th:text="${block.name}">Windings House</td>
+                        <td th:text="${block.shortName}">Windings</td>
+                        <td th:text="${block.totalFlats}">32</td>
+                        <td th:text="${block.displayOrder}">1</td>
+                        <td>
+                            <span th:if="${block.active}" class="badge badge-success">Active</span>
+                            <span th:unless="${block.active}" class="badge badge-secondary">Inactive</span>
+                        </td>
+                        <td>
+                            <a th:href="@{'/admin/blocks/edit/' + ${block.id}}" class="btn btn-small btn-primary">Edit</a>
+                            <form th:action="@{'/admin/blocks/delete/' + ${block.id}}" method="post" style="display: inline;" 
+                                  onsubmit="return confirm('Are you sure you want to delete this block?');">
+                                <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

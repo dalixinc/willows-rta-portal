@@ -10,10 +10,11 @@
     <div class="container">
         <header class="site-header">
             <h1>Edit Member</h1>
+           
         </header>
 
         <div class="edit-member-container">
-            <form th:action="@{/admin/members/update/{id}(id=${member.id})}" 
+            <form th:action="@{/admin/members/edit/{id}(id=${member.id})}" 
                   th:object="${member}" method="post" class="edit-form">
                 
                 <h3>Personal Information</h3>

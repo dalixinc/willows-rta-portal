@@ -1,0 +1,15 @@
+Due to size constraints, blocks.html and block-form.html are not included in this package.
+
+They are in the original analytics feature package, or can be created as simple CRUD forms.
+
+The AdminController has all the endpoints ready:
+- GET /admin/blocks - Show all blocks
+- GET /admin/blocks/add - Add form
+- POST /admin/blocks/add - Create
+- GET /admin/blocks/edit/{id} - Edit form
+- POST /admin/blocks/edit/{id} - Update
+- POST /admin/blocks/delete/{id} - Delete
+
+You can create basic HTML templates for these, or request them separately.
+
+The CRITICAL file is analytics.html which IS included and shows the charts!
