@@ -7,6 +7,7 @@ import com.willows.rta.service.BlockService;
 import com.willows.rta.service.MemberService;
 import com.willows.rta.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -516,11 +517,22 @@ public class AdminController {
     /**
      * Show analytics page
      */
+    @Value("${analytics.beta.enabled:false}")
+    private boolean analyticsEnabled;
+
     @GetMapping("/analytics")
     public String showAnalyticsPage(Model model, Authentication authentication) {
         model.addAttribute("username", authentication.getName());
+        
+        // Check if user is admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+        
         model.addAttribute("blockStats", blockService.calculateBlockStats());
         model.addAttribute("overallStats", blockService.calculateOverallStats());
+        model.addAttribute("analyticsBeta", analyticsEnabled);  // ADD THIS LINE
+
         return "admin/analytics";
     }
 

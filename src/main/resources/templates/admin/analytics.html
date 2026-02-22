@@ -20,6 +20,50 @@
         .status-low { color: #ef4444; font-weight: 600; }
         .last-updated { text-align: center; color: #6b7280; font-size: 0.9rem; margin-top: 20px; }
     </style>
+
+     <style>
+        .beta-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .beta-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .beta-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .beta-text {
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+        .beta-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .beta-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -33,7 +77,7 @@
             </div>
         </header>
 
-        <nav class="admin-nav">
+        <nav class="admin-nav" th:if="${isAdmin}">
             <a href="/admin/dashboard">Dashboard</a>
             <a href="/admin/members">Members</a>
             <a href="/member/directory">Members Directory</a>
@@ -43,6 +87,28 @@
             <a href="/admin/blocks">Block Config</a>
             <a href="/constitution">Constitution</a>
         </nav>
+
+        <nav class="member-nav" th:unless="${isAdmin}">
+            <a href="/member/dashboard">Dashboard</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics" class="active">Analytics</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <!-- Beta Banner -->
+        <div th:if="${analyticsBeta}" class="beta-banner" id="betaBanner">
+            <div class="beta-content">
+                <span class="beta-icon">🧪</span>
+                <span class="beta-text">
+                    <strong>BETA FEATURE:</strong> This analytics system is in testing. 
+                    Member counts are automatically detected from flat numbers and addresses. 
+                    Please verify accuracy and report any discrepancies to admin.
+                </span>
+                <button onclick="document.getElementById('betaBanner').style.display='none'" class="beta-close">×</button>
+            </div>
+        </div>
 
         <div class="analytics-container">
             <!-- Overall Statistics Cards -->
@@ -105,7 +171,7 @@
 
             <div class="last-updated">
                 <p>Last updated: <span id="currentDateTime"></span></p>
-                <p><a href="/admin/blocks" class="btn btn-secondary" style="margin-top: 10px;">Configure Blocks</a></p>
+                <p><a th:if="${isAdmin}" href="/admin/blocks" class="btn btn-primary">Configure Blocks</a></p>
             </div>
         </div>
 

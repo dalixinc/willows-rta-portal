@@ -2,6 +2,7 @@ package com.willows.rta.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,6 +28,8 @@ public class SecurityConfig {
                 .requestMatchers("/h2-console/**").permitAll()
                 // Login and OTP authentication endpoints - must be public
                 .requestMatchers("/login", "/login-with-otp", "/verify-otp", "/resend-otp").permitAll()
+                // Analytics - read-only for members
+                .requestMatchers(HttpMethod.GET, "/admin/analytics").hasAnyRole("ADMIN", "MEMBER")
                 // Admin-only pages
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Notice board - admin can create/edit, all authenticated users can view
