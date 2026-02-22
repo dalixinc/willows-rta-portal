@@ -17,4 +17,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByFlatNumber(String flatNumber);
     
     boolean existsByEmail(String email);
+
+    int countByMembershipStatusAndAddressContainingIgnoreCase(String membershipStatus, String addressFragment);
 }

@@ -2,6 +2,8 @@ package com.willows.rta.controller;
 
 import com.willows.rta.model.Member;
 import com.willows.rta.model.User;
+import com.willows.rta.model.Block;
+import com.willows.rta.service.BlockService;
 import com.willows.rta.service.MemberService;
 import com.willows.rta.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +23,13 @@ public class AdminController {
 
     private final MemberService memberService;
     private final UserService userService;
+    private final BlockService blockService;
 
     @Autowired
-    public AdminController(MemberService memberService, UserService userService) {
+    public AdminController(MemberService memberService, UserService userService, BlockService blockService) {
         this.memberService = memberService;
         this.userService = userService;
+        this.blockService = blockService;
     }
 
     // Admin dashboard
@@ -208,8 +212,8 @@ public class AdminController {
     // Create user account for member
     @PostMapping("/members/create-account/{id}")
     public String createUserAccount(@PathVariable Long id,
-                                   @RequestParam(required = false) String customPassword,
-                                   RedirectAttributes redirectAttributes) {
+                                @RequestParam(required = false) String customPassword,
+                                RedirectAttributes redirectAttributes) {
         try {
             Member member = memberService.getMemberById(id)
                     .orElseThrow(() -> new RuntimeException("Member not found"));
@@ -245,7 +249,6 @@ public class AdminController {
             return "redirect:/admin/members/" + id;
         }
     }
-
     // Delete member
     @PostMapping("/members/delete/{id}")
     public String deleteMember(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -424,6 +427,101 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error changing role: " + e.getMessage());
             return "redirect:/admin/members/" + id;
         }
+    }
+
+    /**
+     * Show block configuration page
+     */
+    @GetMapping("/blocks")
+    public String showBlocksPage(Model model, Authentication authentication) {
+        model.addAttribute("username", authentication.getName());
+        model.addAttribute("blocks", blockService.getAllBlocks());
+        return "admin/blocks";
+    }
+
+    /**
+     * Show add block form
+     */
+    @GetMapping("/blocks/add")
+    public String showAddBlockForm(Model model, Authentication authentication) {
+        model.addAttribute("username", authentication.getName());
+        model.addAttribute("block", new Block());
+        return "admin/block-form";
+    }
+
+    /**
+     * Create new block
+     */
+    @PostMapping("/blocks/add")
+    public String addBlock(@ModelAttribute Block block, RedirectAttributes redirectAttributes) {
+        try {
+            if (blockService.blockNameExists(block.getName())) {
+                redirectAttributes.addFlashAttribute("error", "Block name already exists");
+                return "redirect:/admin/blocks/add";
+            }
+            blockService.createBlock(block);
+            redirectAttributes.addFlashAttribute("success", "Block added successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error adding block: " + e.getMessage());
+        }
+        return "redirect:/admin/blocks";
+    }
+
+    /**
+     * Show edit block form
+     */
+    @GetMapping("/blocks/edit/{id}")
+    public String showEditBlockForm(@PathVariable Long id, Model model, Authentication authentication) {
+        model.addAttribute("username", authentication.getName());
+        Optional<Block> block = blockService.getBlockById(id);
+        if (block.isPresent()) {
+            model.addAttribute("block", block.get());
+            return "admin/block-form";
+        }
+        return "redirect:/admin/blocks";
+    }
+
+    /**
+     * Update block
+     */
+    @PostMapping("/blocks/edit/{id}")
+    public String updateBlock(@PathVariable Long id, @ModelAttribute Block block, RedirectAttributes redirectAttributes) {
+        try {
+            Block updated = blockService.updateBlock(id, block);
+            if (updated != null) {
+                redirectAttributes.addFlashAttribute("success", "Block updated successfully");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Block not found");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error updating block: " + e.getMessage());
+        }
+        return "redirect:/admin/blocks";
+    }
+
+    /**
+     * Delete block
+     */
+    @PostMapping("/blocks/delete/{id}")
+    public String deleteBlock(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            blockService.deleteBlock(id);
+            redirectAttributes.addFlashAttribute("success", "Block deleted successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error deleting block: " + e.getMessage());
+        }
+        return "redirect:/admin/blocks";
+    }
+
+    /**
+     * Show analytics page
+     */
+    @GetMapping("/analytics")
+    public String showAnalyticsPage(Model model, Authentication authentication) {
+        model.addAttribute("username", authentication.getName());
+        model.addAttribute("blockStats", blockService.calculateBlockStats());
+        model.addAttribute("overallStats", blockService.calculateOverallStats());
+        return "admin/analytics";
     }
 
     // Helper method to generate temporary password

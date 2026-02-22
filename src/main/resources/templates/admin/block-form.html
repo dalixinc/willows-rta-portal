@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${block.id != null ? 'Edit Block' : 'Add Block'}">Block Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1 th:text="${block.id != null ? '✏️ Edit Block' : '➕ Add Block'}">Block Form</h1>
+            <div class="user-info">
+                <span>Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members">Members</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics">Analytics</a>
+            <a href="/admin/blocks" class="active">Block Config</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div class="form-container">
+            <form th:action="${block.id != null ? '/admin/blocks/edit/' + block.id : '/admin/blocks/add'}" 
+                  th:object="${block}" method="post" class="form-card">
+                
+                <div class="form-group">
+                    <label for="name">Block Name *</label>
+                    <input type="text" id="name" th:field="*{name}" required 
+                           placeholder="e.g., Windings House" maxlength="100">
+                    <small>Full name of the block (will be used to match member addresses)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="shortName">Short Name *</label>
+                    <input type="text" id="shortName" th:field="*{shortName}" required 
+                           placeholder="e.g., Windings" maxlength="20">
+                    <small>Short name for charts and labels</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalFlats">Total Flats *</label>
+                    <input type="number" id="totalFlats" th:field="*{totalFlats}" required 
+                           min="1" max="999" placeholder="e.g., 32">
+                    <small>Total number of flats in this block</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="displayOrder">Display Order *</label>
+                    <input type="number" id="displayOrder" th:field="*{displayOrder}" required 
+                           min="0" value="0" placeholder="e.g., 1">
+                    <small>Order in which this block appears in charts (lower numbers first)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="active">
+                        <input type="checkbox" id="active" th:field="*{active}">
+                        Active
+                    </label>
+                    <small>Only active blocks appear in analytics</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span th:text="${block.id != null ? 'Update Block' : 'Add Block'}">Save</span>
+                    </button>
+                    <a href="/admin/blocks" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>
