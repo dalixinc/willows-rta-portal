@@ -524,6 +524,39 @@ public class AdminController {
         return "admin/analytics";
     }
 
+    /**
+     * Delete user account for member
+     */
+    @PostMapping("/members/{id}/delete-account")
+    public String deleteUserAccount(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Member member = memberService.getMemberById(id)
+                    .orElseThrow(() -> new RuntimeException("Member not found"));
+            
+            // Check if account exists
+            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
+            if (userOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "No user account found for this member");
+                return "redirect:/admin/members/" + id;
+            }
+            
+            // Delete the user account
+            userService.deleteUser(userOpt.get().getId());
+            
+            // Update member record
+            memberService.updateMemberAccountStatus(id, false, null);
+            
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "User account deleted successfully. You can now create a new one.");
+            
+            return "redirect:/admin/members/" + id;
+            
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting account: " + e.getMessage());
+            return "redirect:/admin/members/" + id;
+        }
+    }
+
     // Helper method to generate temporary password
     private String generateTemporaryPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";

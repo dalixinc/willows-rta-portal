@@ -1,0 +1,143 @@
+diff --git a/src/main/java/com/willows/rta/controller/AdminController.java b/src/main/java/com/willows/rta/controller/AdminController.java
+index 4e33ee2..47ddea3 100644
+--- a/src/main/java/com/willows/rta/controller/AdminController.java
++++ b/src/main/java/com/willows/rta/controller/AdminController.java
+@@ -524,6 +524,39 @@ public class AdminController {
+         return "admin/analytics";
+     }
+ 
++    /**
++     * Delete user account for member
++     */
++    @PostMapping("/members/{id}/delete-account")
++    public String deleteUserAccount(@PathVariable Long id, RedirectAttributes redirectAttributes) {
++        try {
++            Member member = memberService.getMemberById(id)
++                    .orElseThrow(() -> new RuntimeException("Member not found"));
++            
++            // Check if account exists
++            Optional<User> userOpt = userService.getUserByUsername(member.getEmail());
++            if (userOpt.isEmpty()) {
++                redirectAttributes.addFlashAttribute("errorMessage", "No user account found for this member");
++                return "redirect:/admin/members/" + id;
++            }
++            
++            // Delete the user account
++            userService.deleteUser(userOpt.get().getId());
++            
++            // Update member record
++            memberService.updateMemberAccountStatus(id, false, null);
++            
++            redirectAttributes.addFlashAttribute("successMessage", 
++                "User account deleted successfully. You can now create a new one.");
++            
++            return "redirect:/admin/members/" + id;
++            
++        } catch (RuntimeException e) {
++            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting account: " + e.getMessage());
++            return "redirect:/admin/members/" + id;
++        }
++    }
++
+     // Helper method to generate temporary password
+     private String generateTemporaryPassword() {
+         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
+diff --git a/src/main/resources/templates/admin/dashboard.html b/src/main/resources/templates/admin/dashboard.html
+index b394fce..b8c0a4f 100644
+--- a/src/main/resources/templates/admin/dashboard.html
++++ b/src/main/resources/templates/admin/dashboard.html
+@@ -25,7 +25,6 @@
+             <a href="/member/directory">Members Directory</a>
+             <a href="/notices">Notice Board</a>
+             <a href="/chat">Chat</a>
+-            <a href="/admin/analytics">Analytics</a>        <!-- NEW -->
+             <a href="/admin/analytics">Analytics</a>
+             <a href="/admin/blocks">Block Config</a>
+             <a href="/constitution">Constitution</a>
+diff --git a/src/main/resources/templates/admin/member-details.html b/src/main/resources/templates/admin/member-details.html
+index 97cbf2f..1d17976 100644
+--- a/src/main/resources/templates/admin/member-details.html
++++ b/src/main/resources/templates/admin/member-details.html
+@@ -225,6 +225,19 @@
+                                     🔓 Unlock Account
+                                 </button>
+                             </form>
++
++                            <!-- DELETE ACCOUNT - ADD HERE -->
++                            <div style="width: 100%; margin-top: 30px; padding-top: 20px; border-top: 2px solid #ff4444;">
++                                <h4 style="color: #ff4444;">⚠️ Danger Zone</h4>
++                                <p style="color: #666;">Delete the login account. Member record remains. Cannot be undone!</p>
++                                <form th:action="@{'/admin/members/' + ${member.id} + '/delete-account'}" method="post">
++                                    <button type="submit" class="btn btn-danger" 
++                                            onclick="return confirm('DELETE login account? This cannot be undone!')">
++                                        🗑️ Delete Login Account
++                                    </button>
++                                </form>
++                            </div>
++
+                         </div>
+                     </div>
+                     
+@@ -245,7 +258,7 @@
+                                 <input type="text" id="customPassword" name="customPassword" class="input-field" minlength="8">
+                                 <small class="text-muted">Leave blank to auto-generate a secure password</small>
+                             </div>
+-                            
++
+                             <button type="submit" class="btn btn-primary" onclick="return confirm('Create login account for this member?')">
+                                 Create Login Account
+                             </button>
+diff --git a/src/main/resources/templates/admin/members-no-accounts.html b/src/main/resources/templates/admin/members-no-accounts.html
+index b181268..9e2dbdc 100644
+--- a/src/main/resources/templates/admin/members-no-accounts.html
++++ b/src/main/resources/templates/admin/members-no-accounts.html
+@@ -22,6 +22,9 @@
+             <a href="/admin/members">Members</a>
+             <a href="/member/directory">Members Directory</a>
+             <a href="/notices">Notice Board</a>
++            <a href="/chat">Chat</a>
++            <a href="/admin/analytics">Analytics</a>
++            <a href="/admin/blocks">Block Config</a>
+             <a href="/constitution">Constitution</a>
+         </nav>
+ 
+diff --git a/src/main/resources/templates/admin/members.html b/src/main/resources/templates/admin/members.html
+index 03001a5..3e70b6d 100644
+--- a/src/main/resources/templates/admin/members.html
++++ b/src/main/resources/templates/admin/members.html
+@@ -24,6 +24,8 @@
+             <a href="/member/directory">Members Directory</a>
+             <a href="/notices">Notice Board</a>
+             <a href="/chat">Chat</a>
++            <a href="/admin/analytics">Analytics</a>
++            <a href="/admin/blocks">Block Config</a>
+             <a href="/constitution">Constitution</a>
+         </nav>
+ 
+diff --git a/src/main/resources/templates/member/directory.html b/src/main/resources/templates/member/directory.html
+index 9f019d5..bd48fbc 100644
+--- a/src/main/resources/templates/member/directory.html
++++ b/src/main/resources/templates/member/directory.html
+@@ -23,6 +23,9 @@
+             <a href="/admin/members">Members</a>
+             <a href="/member/directory" class="active">Members Directory</a>
+             <a href="/notices">Notice Board</a>
++            <a href="/chat">Chat</a>
++            <a href="/admin/analytics">Analytics</a>
++            <a href="/admin/blocks">Block Config</a>
+             <a href="/constitution">Constitution</a>
+         </nav>
+ 
+diff --git a/src/main/resources/templates/notices.html b/src/main/resources/templates/notices.html
+index 6b3dbcb..67c0361 100644
+--- a/src/main/resources/templates/notices.html
++++ b/src/main/resources/templates/notices.html
+@@ -75,6 +75,8 @@
+             <a href="/member/directory">Members Directory</a>
+             <a href="/notices" class="active">Notice Board</a>
+             <a href="/chat">Chat</a>
++            <a href="/admin/analytics">Analytics</a>
++            <a href="/admin/blocks">Block Config</a>
+             <a href="/constitution">Constitution</a>
+         </nav>
+ 

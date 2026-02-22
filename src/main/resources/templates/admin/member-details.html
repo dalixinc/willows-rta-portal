@@ -23,6 +23,9 @@
             <a href="/admin/members" class="active">Members</a>
             <a href="/member/directory">Members Directory</a>
             <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics">Analytics</a>
+            <a href="/admin/blocks">Block Config</a>
             <a href="/constitution">Constitution</a>
         </nav>
 
@@ -225,6 +228,19 @@
                                     🔓 Unlock Account
                                 </button>
                             </form>
+
+                            <!-- DELETE ACCOUNT - ADD HERE -->
+                            <div style="width: 100%; margin-top: 30px; padding-top: 20px; border-top: 2px solid #ff4444;">
+                                <h4 style="color: #ff4444;">⚠️ Danger Zone</h4>
+                                <p style="color: #666;">Delete the login account. Member record remains. Cannot be undone!</p>
+                                <form th:action="@{'/admin/members/' + ${member.id} + '/delete-account'}" method="post">
+                                    <button type="submit" class="btn btn-danger" 
+                                            onclick="return confirm('DELETE login account? This cannot be undone!')">
+                                        🗑️ Delete Login Account
+                                    </button>
+                                </form>
+                            </div>
+
                         </div>
                     </div>
                     
@@ -245,7 +261,7 @@
                                 <input type="text" id="customPassword" name="customPassword" class="input-field" minlength="8">
                                 <small class="text-muted">Leave blank to auto-generate a secure password</small>
                             </div>
-                            
+
                             <button type="submit" class="btn btn-primary" onclick="return confirm('Create login account for this member?')">
                                 Create Login Account
                             </button>
