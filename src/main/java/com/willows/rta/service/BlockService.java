@@ -113,7 +113,7 @@ public class BlockService {
      */
     private int countMembersByBlock(Block block) {
         // Count active members whose address contains the block name (case-insensitive)
-        return memberRepository.countByMembershipStatusAndAddressContainingIgnoreCase("ACTIVE", block.getName());
+         return memberRepository.countActiveByBlockName("ACTIVE", block.getShortName());
     }
 
     /**
