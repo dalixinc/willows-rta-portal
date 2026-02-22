@@ -28,7 +28,9 @@ public class SecurityConfig {
                 // Login and OTP authentication endpoints - must be public
                 .requestMatchers("/login", "/login-with-otp", "/verify-otp", "/resend-otp").permitAll()
                 // Admin-only pages
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/analytics").hasAnyRole("ADMIN", "MEMBER")  // Allow both
+                .requestMatchers("/admin/blocks/**").hasRole("ADMIN")               // Block config admin-only
+                .requestMatchers("/admin/**").hasRole("ADMIN")                      // Everything else admin-only
                 // Notice board - admin can create/edit, all authenticated users can view
                 .requestMatchers("/notices/create", "/notices/edit/**", "/notices/delete/**", "/notices/toggle-pin/**").hasRole("ADMIN")
                 .requestMatchers("/notices").authenticated()

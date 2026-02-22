@@ -60,14 +60,16 @@
         <header class="site-header">
             <h1>📊 Membership Analytics</h1>
             <div class="user-info">
-                <span>Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
+                <span th:if="${isAdmin}">Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
+                <span th:unless="${isAdmin}">Welcome, <span th:text="${username}">User</span></span>
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-small btn-secondary">Logout</button>
                 </form>
             </div>
         </header>
 
-        <nav class="admin-nav">
+        <!-- Admin Navigation -->
+        <nav th:if="${isAdmin}" class="admin-nav">
             <a href="/admin/dashboard">Dashboard</a>
             <a href="/admin/members">Members</a>
             <a href="/member/directory">Members Directory</a>
@@ -75,6 +77,17 @@
             <a href="/chat">Chat</a>
             <a href="/admin/analytics" class="active">Analytics</a>
             <a href="/admin/blocks">Block Config</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <!-- Member Navigation -->
+        <nav th:unless="${isAdmin}" class="member-nav">
+            <a href="/member/dashboard">Dashboard</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/member/profile">My Profile</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics" class="active">Analytics</a>
             <a href="/constitution">Constitution</a>
         </nav>
 
@@ -148,7 +161,9 @@
 
             <div class="last-updated">
                 <p>Last updated: <span id="currentDateTime"></span></p>
-                <p><a href="/admin/blocks" class="btn btn-secondary" style="margin-top: 10px;">Configure Blocks</a></p>
+                <p th:if="${isAdmin}">
+                    <a href="/admin/blocks" class="btn btn-secondary" style="margin-top: 10px;">Configure Blocks</a>
+                </p>
             </div>
         </div>
 

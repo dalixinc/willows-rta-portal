@@ -379,11 +379,18 @@ public class AdminController {
     @GetMapping("/analytics")
     public String showAnalyticsPage(Model model, Authentication authentication) {
         model.addAttribute("username", authentication.getName());
+        
+        // Check if user is admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
+        
         model.addAttribute("blockStats", blockService.calculateBlockStats());
         model.addAttribute("overallStats", blockService.calculateOverallStats());
-        model.addAttribute("analyticsBeta", analyticsEnabled);  // ADD THIS LINE
+        model.addAttribute("analyticsBeta", analyticsEnabled);
+        
         return "admin/analytics";
-}
+    }
 
     // Helper method to generate temporary password
     private String generateTemporaryPassword() {
