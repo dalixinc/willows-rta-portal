@@ -4,8 +4,13 @@ import com.willows.rta.model.Member;
 import com.willows.rta.model.User;
 import com.willows.rta.model.Block;
 import com.willows.rta.service.BlockService;
+import com.willows.rta.service.MemberExportService;
 import com.willows.rta.service.MemberService;
 import com.willows.rta.service.UserService;
+
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.aspectj.apache.bcel.classfile.Module.Export;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -14,6 +19,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
@@ -25,12 +32,14 @@ public class AdminController {
     private final MemberService memberService;
     private final UserService userService;
     private final BlockService blockService;
+    private final MemberExportService exportService;
 
     @Autowired
-    public AdminController(MemberService memberService, UserService userService, BlockService blockService) {
+    public AdminController(MemberService memberService, UserService userService, BlockService blockService, MemberExportService exportService) {
         this.memberService = memberService;
         this.userService = userService;
         this.blockService = blockService;
+        this.exportService = exportService;
     }
 
     // Admin dashboard
@@ -568,6 +577,75 @@ public class AdminController {
             return "redirect:/admin/members/" + id;
         }
     }
+
+    /**
+     * Handle Document Exports
+     */
+
+    //Export members based on filters
+    @GetMapping("/members/export")
+    public void exportMembers(
+            @RequestParam(required = false) String block,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Boolean hasAccount,
+            @RequestParam(defaultValue = "csv") String format,
+            HttpServletResponse response) throws IOException {
+        
+        // Get filtered members
+        List<Member> members = memberService.getFilteredMembers(block, status, hasAccount);
+        
+        // Build filename
+        String filename = buildExportFilename(block, status, hasAccount, format);
+        
+        // Export based on format
+        if ("xlsx".equalsIgnoreCase(format)) {
+            exportToExcel(members, filename, response);
+        } else {
+            exportToCsv(members, filename, response);
+        }
+    }
+
+     // Export to CSV or Excel with filters
+    private void exportToCsv(List<Member> members, String filename, HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+        
+        PrintWriter writer = response.getWriter();
+        exportService.exportToCsv(members, writer);
+
+    }
+
+    // Export to Excel
+    private void exportToExcel(List<Member> members, String filename, HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+        
+        exportService.exportToExcel(members, response.getOutputStream());
+    }
+
+     // Build descriptive filename for export
+    private String buildExportFilename(String block, String status, Boolean hasAccount, String format) {
+        StringBuilder filename = new StringBuilder("willows-members");
+        
+        if (block != null && !block.isEmpty()) {
+            filename.append("-").append(block.toLowerCase().replace(" ", "-"));
+        }
+        
+        if (status != null && !status.isEmpty()) {
+            filename.append("-").append(status.toLowerCase());
+        }
+        
+        if (hasAccount != null) {
+            filename.append(hasAccount ? "-with-accounts" : "-no-accounts");
+        }
+        
+        filename.append("-").append(java.time.LocalDate.now().toString());
+        filename.append(".").append(format.toLowerCase());
+        
+        return filename.toString();
+    }
+
+    // *********************************************************************************************
 
     // Helper method to generate temporary password
     private String generateTemporaryPassword() {

@@ -39,6 +39,70 @@
                 <p>No members registered yet.</p>
             </div>
 
+            <!-- Export Section -->
+            <div class="export-section" style="margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h3 style="color: white; margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 24px;">📊</span>
+                    Export Members Report
+                </h3>
+                
+                <form action="/admin/members/export" method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+                    
+                    <!-- Filter by Block -->
+                    <div class="form-group" style="margin: 0;">
+                        <label for="exportBlock" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Filter by Block</label>
+                        <select name="block" id="exportBlock" class="input-field" style="width: 100%; padding: 8px; border-radius: 5px; border: none;">
+                            <option value="">All Blocks</option>
+                            <option value="Windings">Windings House</option>
+                            <option value="Field">Field House</option>
+                            <option value="Brook">Brook House</option>
+                            <option value="Spinney">Spinney House</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filter by Status -->
+                    <div class="form-group" style="margin: 0;">
+                        <label for="exportStatus" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Filter by Status</label>
+                        <select name="status" id="exportStatus" class="input-field" style="width: 100%; padding: 8px; border-radius: 5px; border: none;">
+                            <option value="">All Statuses</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                            <option value="PENDING">Pending</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filter by Account -->
+                    <div class="form-group" style="margin: 0;">
+                        <label for="exportAccount" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Filter by Login Account</label>
+                        <select name="hasAccount" id="exportAccount" class="input-field" style="width: 100%; padding: 8px; border-radius: 5px; border: none;">
+                            <option value="">All Members</option>
+                            <option value="true">With Login Account</option>
+                            <option value="false">Without Login Account</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Export Format -->
+                    <div class="form-group" style="margin: 0;">
+                        <label for="format" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Export Format</label>
+                        <select name="format" id="format" class="input-field" style="width: 100%; padding: 8px; border-radius: 5px; border: none;" required>
+                            <option value="xlsx">📗 Excel (.xlsx)</option>
+                            <option value="csv">📄 CSV</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Export Button -->
+                    <button type="submit" class="btn btn-primary" style="background: white; color: #667eea; font-weight: bold; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s; height: fit-content;">
+                        📥 Download Export
+                    </button>
+                </form>
+                
+                <p style="color: rgba(255,255,255,0.9); margin: 15px 0 0 0; font-size: 14px;">
+                    💡 <strong>Tip:</strong> Leave filters empty to export all members. Excel format includes formatting and is recommended for professional reports.
+                </p>
+            </div>
+
+
+
             <div th:unless="${#lists.isEmpty(members)}" class="members-table">
                 <table>
                     <thead>

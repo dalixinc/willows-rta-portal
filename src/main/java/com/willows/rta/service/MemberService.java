@@ -119,4 +119,40 @@ public class MemberService {
     public List<Member> getMembersByStatus(String status) {
         return memberRepository.findByMembershipStatus(status);
     }
+
+   // Get filtered members for export
+    public List<Member> getFilteredMembers(String block, String status, Boolean hasAccount) {
+        List<Member> allMembers = memberRepository.findAll();
+        
+        return allMembers.stream()
+            .filter(m -> {
+                // Filter by status if provided
+                if (status != null && !status.isEmpty()) {
+                    if (!status.equals(m.getMembershipStatus())) {
+                        return false;
+                    }
+                }
+                
+                // Filter by account status if provided
+                if (hasAccount != null) {
+                    if (hasAccount != m.isHasUserAccount()) {
+                        return false;
+                    }
+                }
+                
+                // Filter by block if provided
+                if (block != null && !block.isEmpty()) {
+                    String flatNum = m.getFlatNumber() != null ? m.getFlatNumber().toLowerCase() : "";
+                    String address = m.getAddress() != null ? m.getAddress().toLowerCase() : "";
+                    String blockLower = block.toLowerCase();
+                    
+                    if (!flatNum.contains(blockLower) && !address.contains(blockLower)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            })
+            .collect(java.util.stream.Collectors.toList());
+    }
 }

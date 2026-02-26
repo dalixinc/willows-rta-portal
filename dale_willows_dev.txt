@@ -3,24 +3,21 @@ data integrity before and after algorithm
 Does some processes to ensure your data has been restored exactly after a corruption or a sync failure
 
 
-willowsrta@gmail.com
-gmail: 0re$hn1K
+wrta@gmail.com
+gmail: 
 
 dmbf wmxp ctub ydnd
 
 dmbfwmxpctubydnd
 
 
-Resend: 0re$hn1K1234
 
-Resend API Key : re_UKaZ6ZpJ_LRSh5FmaFNNkzGP82co7zqGY  re_UKaZ6ZpJ_LRSh5FmaFNNkzGP82co7zqGY
+
 
 Domain: willows.top  (willowsrta@gmail.com)
 
-P/W: 0re$hn1K1
 
 
 
- jdbc:h2:file:./data/willowsdb;CIPHER=AES
-sa
-filepassword WillowsRTA2026!Secure
+
+ jd
