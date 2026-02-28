@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${poll.title} + ' - Poll Details'">Poll Details</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .poll-header { background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .poll-option { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .vote-bar { height: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 5px; transition: width 0.3s; }
+        .vote-bar-container { background: #f0f0f0; border-radius: 5px; height: 30px; position: relative; margin: 10px 0; }
+        .vote-count { position: absolute; right: 10px; top: 5px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .voters-list { margin-top: 10px; font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🗳️ Poll Details</h1>
+            <div class="user-info">
+                <span>Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members">Members</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics">Analytics</a>
+            <a href="/admin/blocks">Block Config</a>
+            <a href="/admin/polls" class="active">Polls</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <!-- Poll Header -->
+        <div class="poll-header">
+            <h2 th:text="${poll.title}">Poll Title</h2>
+            <p th:if="${poll.description}" th:text="${poll.description}">Description</p>
+            
+            <div style="margin-top: 15px;">
+                <span class="badge" th:classappend="${poll.status == 'ACTIVE' ? 'badge-success' : (poll.status == 'CLOSED' ? 'badge-error' : 'badge-secondary')}" th:text="${poll.status}">STATUS</span>
+                <span class="badge badge-info" th:if="${poll.pollType == 'SINGLE_CHOICE'}">Single Choice</span>
+                <span class="badge badge-info" th:if="${poll.pollType == 'MULTIPLE_CHOICE'}">Multiple Choice</span>
+                <span class="badge" th:classappend="${poll.visibility == 'OPEN' ? 'badge-info' : 'badge-success'}">
+                    <span th:if="${poll.visibility == 'OPEN'}">🔓 Open</span>
+                    <span th:if="${poll.visibility == 'ANONYMOUS'}">🔒 Anonymous</span>
+                </span>
+            </div>
+
+            <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                <div>Created: <span th:text="${#temporals.format(poll.createdAt, 'dd/MM/yyyy HH:mm')}"></span></div>
+                <div th:if="${poll.openAt}">Opened: <span th:text="${#temporals.format(poll.openAt, 'dd/MM/yyyy HH:mm')}"></span></div>
+                <div th:if="${poll.closeAt}">
+                    Deadline: <span th:text="${#temporals.format(poll.closeAt, 'dd/MM/yyyy HH:mm')}"></span>
+                    <span th:if="${poll.expired}" style="color: red; font-weight: bold;">(EXPIRED)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Participation Stats -->
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h3>📊 Participation</h3>
+            <div style="font-size: 24px; font-weight: bold; color: #667eea;">
+                <span th:text="${stats.totalVotes}">0</span> / <span th:text="${stats.totalMembers}">0</span> members voted
+                (<span th:text="${stats.formattedParticipationRate}">0%</span>)
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div>
+            <h3>Results</h3>
+            <div th:each="option : ${results.options}" class="poll-option">
+                <div style="font-weight: bold; margin-bottom: 5px;" th:text="${option.optionText}">Option Text</div>
+                
+                <div class="vote-bar-container">
+                    <div class="vote-bar" th:style="'width: ' + ${option.percentage} + '%'"></div>
+                    <div class="vote-count">
+                        <span th:text="${option.voteCount}">0</span> votes 
+                        (<span th:text="${option.formattedPercentage}">0%</span>)
+                    </div>
+                </div>
+
+                <!-- Show voters for open polls -->
+                <div th:if="${poll.visibility == 'OPEN' and !#lists.isEmpty(option.voters)}" class="voters-list">
+                    <strong>Voted:</strong> 
+                    <span th:text="${#strings.listJoin(option.voters, ', ')}">Voters</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
+            <h3>Actions</h3>
+            
+            <!-- Draft Poll Actions -->
+            <div th:if="${poll.status == 'DRAFT'}">
+                <form th:action="@{'/admin/polls/' + ${poll.id} + '/publish'}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Publish this poll?')">
+                        📢 Publish Poll
+                    </button>
+                </form>
+                <form th:action="@{'/admin/polls/' + ${poll.id} + '/delete'}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this draft?')">
+                        🗑️ Delete Draft
+                    </button>
+                </form>
+            </div>
+
+            <!-- Active Poll Actions -->
+            <div th:if="${poll.status == 'ACTIVE'}">
+                <form th:action="@{'/admin/polls/' + ${poll.id} + '/close'}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-warning" onclick="return confirm('Close this poll?')">
+                        ⏸️ Close Poll
+                    </button>
+                </form>
+            </div>
+
+            <!-- Closed Poll Actions -->
+            <div th:if="${poll.status == 'CLOSED'}">
+                <form th:action="@{'/admin/polls/' + ${poll.id} + '/reopen'}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Reopen this poll?')">
+                        ▶️ Reopen Poll
+                    </button>
+                </form>
+            </div>
+
+            <a href="/admin/polls" class="btn btn-secondary">← Back to Polls</a>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

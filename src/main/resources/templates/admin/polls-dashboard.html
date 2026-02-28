@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polls Dashboard - The Willows RTA Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🗳️ Polls Dashboard</h1>
+            <div class="user-info">
+                <span>Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members">Members</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics">Analytics</a>
+            <a href="/admin/blocks">Block Config</a>
+            <a href="/admin/polls" class="active">Polls</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <div style="margin: 20px 0;">
+            <a href="/admin/polls/create" class="btn btn-primary">➕ Create New Poll</a>
+        </div>
+
+        <!-- Active Polls -->
+        <div class="content-section">
+            <h2>🟢 Active Polls</h2>
+            <div th:if="${#lists.isEmpty(activePolls)}" class="alert alert-info">
+                No active polls. Create one to get started!
+            </div>
+            <table th:unless="${#lists.isEmpty(activePolls)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Visibility</th>
+                        <th>Votes</th>
+                        <th>Deadline</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="poll : ${activePolls}">
+                        <td th:text="${poll.title}">Poll Title</td>
+                        <td>
+                            <span th:if="${poll.pollType == 'SINGLE_CHOICE'}">Single Choice</span>
+                            <span th:if="${poll.pollType == 'MULTIPLE_CHOICE'}">Multiple Choice</span>
+                        </td>
+                        <td>
+                            <span th:if="${poll.visibility == 'OPEN'}" class="badge badge-info">🔓 Open</span>
+                            <span th:if="${poll.visibility == 'ANONYMOUS'}" class="badge badge-success">🔒 Anonymous</span>
+                        </td>
+                        <td th:text="${poll.totalVotes}">0</td>
+                        <td>
+                            <span th:if="${poll.closeAt != null}" th:text="${#temporals.format(poll.closeAt, 'dd/MM/yyyy HH:mm')}">No deadline</span>
+                            <span th:unless="${poll.closeAt != null}">No deadline</span>
+                        </td>
+                        <td>
+                            <a th:href="@{'/admin/polls/' + ${poll.id}}" class="btn btn-small btn-info">View</a>
+                            <form th:action="@{'/admin/polls/' + ${poll.id} + '/close'}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-small btn-warning" onclick="return confirm('Close this poll?')">Close</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Draft Polls -->
+        <div class="content-section" style="margin-top: 30px;">
+            <h2>📝 Draft Polls</h2>
+            <div th:if="${#lists.isEmpty(draftPolls)}" class="alert alert-info">
+                No draft polls.
+            </div>
+            <table th:unless="${#lists.isEmpty(draftPolls)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Options</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="poll : ${draftPolls}">
+                        <td th:text="${poll.title}">Poll Title</td>
+                        <td>
+                            <span th:if="${poll.pollType == 'SINGLE_CHOICE'}">Single Choice</span>
+                            <span th:if="${poll.pollType == 'MULTIPLE_CHOICE'}">Multiple Choice</span>
+                        </td>
+                        <td th:text="${#lists.size(poll.options)}">0</td>
+                        <td th:text="${#temporals.format(poll.createdAt, 'dd/MM/yyyy')}">01/01/2026</td>
+                        <td>
+                            <a th:href="@{'/admin/polls/' + ${poll.id}}" class="btn btn-small btn-info">View</a>
+                            <form th:action="@{'/admin/polls/' + ${poll.id} + '/publish'}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-small btn-success" onclick="return confirm('Publish this poll?')">Publish</button>
+                            </form>
+                            <form th:action="@{'/admin/polls/' + ${poll.id} + '/delete'}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Delete this draft?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Closed Polls -->
+        <div class="content-section" style="margin-top: 30px;">
+            <h2>🔴 Closed Polls</h2>
+            <div th:if="${#lists.isEmpty(closedPolls)}" class="alert alert-info">
+                No closed polls.
+            </div>
+            <table th:unless="${#lists.isEmpty(closedPolls)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Total Votes</th>
+                        <th>Closed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="poll : ${closedPolls}">
+                        <td th:text="${poll.title}">Poll Title</td>
+                        <td th:text="${poll.totalVotes}">0</td>
+                        <td>
+                            <span th:if="${poll.closedManually}">Manual</span>
+                            <span th:unless="${poll.closedManually}">Auto (deadline)</span>
+                        </td>
+                        <td>
+                            <a th:href="@{'/admin/polls/' + ${poll.id}}" class="btn btn-small btn-info">View Results</a>
+                            <form th:action="@{'/admin/polls/' + ${poll.id} + '/reopen'}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-small btn-warning" onclick="return confirm('Reopen this poll?')">Reopen</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

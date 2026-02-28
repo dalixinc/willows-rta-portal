@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Poll - The Willows RTA Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>➕ Create New Poll</h1>
+            <div class="user-info">
+                <span>Logged in as: <strong class="admin-username" th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/members">Members</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/admin/analytics">Analytics</a>
+            <a href="/admin/blocks">Block Config</a>
+            <a href="/admin/polls" class="active">Polls</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <form action="/admin/polls/create" method="post" style="max-width: 800px; margin: 20px auto;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            
+            <div class="form-group">
+                <label for="title">Poll Title *</label>
+                <input type="text" id="title" name="title" required maxlength="200" placeholder="e.g., Should we repaint the lobby?">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description (Optional)</label>
+                <textarea id="description" name="description" rows="3" placeholder="Provide context or additional information..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pollType">Poll Type *</label>
+                <select id="pollType" name="pollType" required>
+                    <option value="SINGLE_CHOICE">Single Choice (pick one)</option>
+                    <option value="MULTIPLE_CHOICE">Multiple Choice (pick many)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="visibility">Visibility *</label>
+                <select id="visibility" name="visibility" required>
+                    <option value="OPEN">🔓 Open (names visible with votes)</option>
+                    <option value="ANONYMOUS">🔒 Anonymous (votes are private)</option>
+                </select>
+                <small>Open polls show who voted for what. Anonymous polls keep votes private.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="resultsVisibility">Results Visibility *</label>
+                <select id="resultsVisibility" name="resultsVisibility" required>
+                    <option value="LIVE">📊 Live (show results in real-time)</option>
+                    <option value="HIDDEN_UNTIL_CLOSE">🔒 Hidden until poll closes</option>
+                    <option value="ADMIN_ONLY">👨‍💼 Admin only</option>
+                </select>
+                <small>Control when members can see results.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="closeAt">Deadline (Optional)</label>
+                <input type="datetime-local" id="closeAt" name="closeAt">
+                <small>Leave empty for no deadline (close manually).</small>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="allowRevote" value="true">
+                    Allow members to change their vote
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>Poll Options * (minimum 2)</label>
+                <div id="options-container">
+                    <div style="margin-bottom: 10px;">
+                        <input type="text" name="options" placeholder="Option 1" required style="width: calc(100% - 50px);">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <input type="text" name="options" placeholder="Option 2" required style="width: calc(100% - 50px);">
+                    </div>
+                </div>
+                <button type="button" onclick="addOption()" class="btn btn-secondary">+ Add Option</button>
+                <small>You can add up to 10 options.</small>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">Create Poll (as Draft)</button>
+                <a href="/admin/polls" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+
+    <script>
+        let optionCount = 2;
+        function addOption() {
+            if (optionCount >= 10) {
+                alert('Maximum 10 options allowed');
+                return;
+            }
+            optionCount++;
+            const container = document.getElementById('options-container');
+            const div = document.createElement('div');
+            div.style.marginBottom = '10px';
+            div.innerHTML = '<input type="text" name="options" placeholder="Option ' + optionCount + '" style="width: calc(100% - 50px);"> <button type="button" onclick="this.parentElement.remove(); optionCount--;" class="btn btn-small btn-danger">Remove</button>';
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${poll.title} + ' - Vote'">Vote</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .voting-container {
+            max-width: 700px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .poll-option-vote {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .poll-option-vote:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+        }
+        .poll-option-vote input[type="radio"],
+        .poll-option-vote input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.5);
+        }
+        .poll-option-vote label {
+            cursor: pointer;
+            display: block;
+            font-size: 16px;
+        }
+        .visibility-notice {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🗳️ Cast Your Vote</h1>
+            <div class="user-info">
+                <span>Logged in as: <strong th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="member-nav">
+            <a href="/member/dashboard">Dashboard</a>
+            <a href="/member/profile">My Profile</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/polls" class="active">Polls</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <div class="voting-container">
+            <h2 th:text="${poll.title}">Poll Title</h2>
+            <p th:if="${poll.description}" th:text="${poll.description}" style="color: #666; margin: 15px 0;">Description</p>
+
+            <!-- Visibility Notice -->
+            <div class="visibility-notice">
+                <div th:if="${poll.visibility == 'OPEN'}">
+                    <strong>🔓 OPEN VOTING</strong>
+                    <p style="margin: 5px 0 0 0;">Your name will be visible with your vote. Everyone can see who voted for what.</p>
+                </div>
+                <div th:if="${poll.visibility == 'ANONYMOUS'}">
+                    <strong>🔒 ANONYMOUS VOTING</strong>
+                    <p style="margin: 5px 0 0 0;">Your vote is private. Nobody can see how you voted.</p>
+                </div>
+            </div>
+
+            <!-- Already Voted Notice -->
+            <div th:if="${hasVoted}" class="alert alert-warning">
+                <strong>⚠️ You have already voted on this poll.</strong>
+                <p th:if="${poll.allowRevote}">You can change your vote below.</p>
+                <p th:unless="${poll.allowRevote}">Voting again will update your previous vote.</p>
+            </div>
+
+            <!-- Deadline -->
+            <div th:if="${poll.closeAt}" style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                ⏰ <strong>Deadline:</strong> <span th:text="${#temporals.format(poll.closeAt, 'EEEE, dd MMMM yyyy \'at\' HH:mm')}"></span>
+            </div>
+
+            <form th:action="@{'/polls/' + ${poll.id} + '/vote'}" method="post">
+                
+                <h3>Choose your option<span th:if="${poll.pollType == 'MULTIPLE_CHOICE'}">s</span>:</h3>
+
+                <!-- Single Choice -->
+                <div th:if="${poll.pollType == 'SINGLE_CHOICE'}">
+                    <div th:each="option : ${poll.options}" class="poll-option-vote">
+                        <label>
+                            <input type="radio" 
+                                   name="optionIds" 
+                                   th:value="${option.id}" 
+                                   required>
+                            <span th:text="${option.optionText}">Option Text</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Multiple Choice -->
+                <div th:if="${poll.pollType == 'MULTIPLE_CHOICE'}">
+                    <p style="color: #666; font-style: italic;">Select all that apply</p>
+                    <div th:each="option : ${poll.options}" class="poll-option-vote">
+                        <label>
+                            <input type="checkbox" 
+                                   name="optionIds" 
+                                   th:value="${option.id}">
+                            <span th:text="${option.optionText}">Option Text</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary btn-large" style="padding: 15px 30px; font-size: 18px;">
+                        ✓ Submit Vote
+                    </button>
+                    <a th:href="@{/polls}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

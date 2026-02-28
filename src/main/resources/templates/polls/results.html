@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${poll.title} + ' - Results'">Poll Results</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .results-container {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .poll-option-result {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+        .vote-bar {
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-weight: bold;
+        }
+        .vote-bar-container {
+            background: #f0f0f0;
+            border-radius: 5px;
+            height: 40px;
+            margin: 10px 0;
+        }
+        .voters-list {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+        }
+        .stats-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .hidden-results {
+            text-align: center;
+            padding: 40px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>📊 Poll Results</h1>
+            <div class="user-info">
+                <span>Logged in as: <strong th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="member-nav">
+            <a href="/member/dashboard">Dashboard</a>
+            <a href="/member/profile">My Profile</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/polls" class="active">Polls</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div class="results-container">
+            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h2 th:text="${poll.title}">Poll Title</h2>
+                <p th:if="${poll.description}" th:text="${poll.description}" style="color: #666;">Description</p>
+                
+                <div style="margin-top: 10px;">
+                    <span class="badge" th:classappend="${poll.status == 'ACTIVE' ? 'badge-success' : 'badge-error'}" th:text="${poll.status}">STATUS</span>
+                    <span class="badge" th:classappend="${poll.visibility == 'OPEN' ? 'badge-info' : 'badge-success'}">
+                        <span th:if="${poll.visibility == 'OPEN'}">🔓 Open</span>
+                        <span th:if="${poll.visibility == 'ANONYMOUS'}">🔒 Anonymous</span>
+                    </span>
+                    <span th:if="${hasVoted}" class="badge badge-success">✓ You voted</span>
+                </div>
+            </div>
+
+            <!-- Results Hidden -->
+            <div th:if="${cannotViewResults}" class="hidden-results">
+                <h3>🔒 Results Hidden</h3>
+                <p>Results for this poll are not visible yet.</p>
+                <p th:if="${poll.resultsVisibility == 'HIDDEN_UNTIL_CLOSE'}">
+                    Results will be shown when the poll closes.
+                </p>
+                <p th:if="${poll.resultsVisibility == 'ADMIN_ONLY'}">
+                    Only administrators can view results for this poll.
+                </p>
+                <a href="/polls" class="btn btn-primary">← Back to Polls</a>
+            </div>
+
+            <!-- Results Visible -->
+            <div th:unless="${cannotViewResults}">
+                
+                <!-- Total Votes -->
+                <div class="stats-box">
+                    <div style="font-size: 48px; font-weight: bold;" th:text="${results.totalVotes}">0</div>
+                    <div style="font-size: 20px;">Total Votes Cast</div>
+                </div>
+
+                <!-- Options Results -->
+                <div>
+                    <h3>Breakdown by Option:</h3>
+                    <div th:each="option : ${results.options}" class="poll-option-result">
+                        <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px;" th:text="${option.optionText}">Option Text</div>
+                        
+                        <div class="vote-bar-container">
+                            <div class="vote-bar" th:style="'width: ' + ${option.percentage} + '%'">
+                                <span th:text="${option.voteCount} + ' votes (' + ${option.formattedPercentage} + ')'">0 votes (0%)</span>
+                            </div>
+                        </div>
+
+                        <!-- Show voters for open polls -->
+                        <div th:if="${poll.visibility == 'OPEN' and !#lists.isEmpty(option.voters)}" class="voters-list">
+                            <strong>Voted for this option:</strong><br>
+                            <span th:text="${#strings.listJoin(option.voters, ', ')}">Voters</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="margin-top: 30px; text-align: center;">
+                    <a th:if="${poll.status == 'ACTIVE' and !hasVoted}" 
+                       th:href="@{'/polls/' + ${poll.id} + '/vote'}" 
+                       class="btn btn-primary">
+                        🗳️ Cast Your Vote
+                    </a>
+                    <a th:if="${poll.status == 'ACTIVE' and hasVoted and poll.allowRevote}" 
+                       th:href="@{'/polls/' + ${poll.id} + '/vote'}" 
+                       class="btn btn-warning">
+                        ✏️ Change Your Vote
+                    </a>
+                    <a href="/polls" class="btn btn-secondary">← Back to Polls</a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

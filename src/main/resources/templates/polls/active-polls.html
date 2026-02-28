@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Polls - The Willows RTA</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .poll-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .poll-card.voted {
+            border-color: #4CAF50;
+            background: #f0fff0;
+        }
+        .poll-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .deadline-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1>🗳️ Active Polls</h1>
+            <div class="user-info">
+                <span>Logged in as: <strong th:text="${username}"></strong></span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-secondary">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <nav class="member-nav">
+            <a href="/member/dashboard">Dashboard</a>
+            <a href="/member/profile">My Profile</a>
+            <a href="/member/directory">Members Directory</a>
+            <a href="/notices">Notice Board</a>
+            <a href="/chat">Chat</a>
+            <a href="/polls" class="active">Polls</a>
+            <a href="/constitution">Constitution</a>
+        </nav>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <div th:if="${#lists.isEmpty(polls)}" class="alert alert-info">
+            <h3>📭 No Active Polls</h3>
+            <p>There are no polls open for voting at the moment. Check back later!</p>
+        </div>
+
+        <div th:each="poll : ${polls}" class="poll-card" th:classappend="${poll.allowRevote ? 'voted' : ''}">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <h2 style="margin: 0;" th:text="${poll.title}">Poll Title</h2>
+                <span th:if="${poll.allowRevote}" class="badge badge-success">✓ Voted</span>
+            </div>
+
+            <p th:if="${poll.description}" th:text="${poll.description}" style="color: #666; margin: 10px 0;">Description</p>
+
+            <div class="poll-meta">
+                <span class="badge" th:classappend="${poll.visibility == 'OPEN' ? 'badge-info' : 'badge-success'}">
+                    <span th:if="${poll.visibility == 'OPEN'}">🔓 Open Voting</span>
+                    <span th:if="${poll.visibility == 'ANONYMOUS'}">🔒 Anonymous</span>
+                </span>
+                <span class="badge badge-info" th:if="${poll.pollType == 'SINGLE_CHOICE'}">Single Choice</span>
+                <span class="badge badge-info" th:if="${poll.pollType == 'MULTIPLE_CHOICE'}">Multiple Choice</span>
+                <span class="badge badge-secondary">
+                    <span th:text="${poll.totalVotes}">0</span> votes
+                </span>
+            </div>
+
+            <div th:if="${poll.closeAt}" class="deadline-warning">
+                ⏰ <strong>Deadline:</strong> <span th:text="${#temporals.format(poll.closeAt, 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <a th:href="@{'/polls/' + ${poll.id} + '/vote'}" 
+                   class="btn" 
+                   th:classappend="${poll.allowRevote ? 'btn-warning' : 'btn-primary'}">
+                    <span th:if="${!poll.allowRevote}">🗳️ Cast Your Vote</span>
+                    <span th:if="${poll.allowRevote}">✏️ Change Your Vote</span>
+                </a>
+                <a th:href="@{'/polls/' + ${poll.id} + '/results'}" 
+                   class="btn btn-secondary">
+                    📊 View Results
+                </a>
+            </div>
+        </div>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 The Willows RTA</p>
+        </footer>
+    </div>
+</body>
+</html>

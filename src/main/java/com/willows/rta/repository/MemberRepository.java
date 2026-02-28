@@ -20,6 +20,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     
     boolean existsByEmail(String email);
 
+    long countByMembershipStatus(String status);
+
     /**
      * Count active members by checking if EITHER flat_number OR address contains the block name
      * Uses DISTINCT to avoid double-counting if both fields match
