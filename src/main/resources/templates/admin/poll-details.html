@@ -38,6 +38,17 @@
             <a href="/constitution">Constitution</a>
         </nav>
 
+        <!-- Beta Banner -->
+        <div th:if="${pollsBeta}" class="beta-banner" id="pollsBetaBanner">
+            <div class="beta-content">
+                <span class="beta-icon">🧪</span>
+                <span class="beta-text">
+                    <strong>BETA FEATURE:</strong> Voting system is in testing.
+                </span>
+                <button onclick="document.getElementById('pollsBetaBanner').style.display='none'" class="beta-close">×</button>
+            </div>
+        </div>
+
         <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 

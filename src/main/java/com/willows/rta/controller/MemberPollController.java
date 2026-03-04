@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,8 @@ public class MemberPollController {
     private final VotingService votingService;
     private final UserService userService;
     private final MemberService memberService;
+    @Value("${polls.beta.enabled:false}")
+    private boolean pollsBeta;
 
     @Autowired
     public MemberPollController(PollService pollService, VotingService votingService, 
@@ -36,6 +39,7 @@ public class MemberPollController {
         this.votingService = votingService;
         this.userService = userService;
         this.memberService = memberService;
+        
     }
 
     /**
@@ -64,6 +68,8 @@ public class MemberPollController {
             boolean hasVoted = votingService.hasVoted(poll.getId(), member.getId());
             poll.setAllowRevote(hasVoted); // Reusing this field to pass voted status to template
         }
+
+        model.addAttribute("pollsBeta", pollsBeta);
         
         return "polls/active-polls";
     }

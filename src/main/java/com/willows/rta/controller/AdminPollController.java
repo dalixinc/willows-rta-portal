@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,6 +29,8 @@ public class AdminPollController {
     private final PollService pollService;
     private final VotingService votingService;
     private final UserService userService;
+     @Value("${polls.beta.enabled:false}")
+    private boolean pollsBeta;
 
     @Autowired
     public AdminPollController(PollService pollService, VotingService votingService, UserService userService) {
@@ -145,6 +148,8 @@ public class AdminPollController {
         // Get stats
         PollService.PollStats stats = pollService.getPollStats(id);
         model.addAttribute("stats", stats);
+
+        model.addAttribute("pollsBeta", pollsBeta);
         
         return "admin/poll-details";
     }
