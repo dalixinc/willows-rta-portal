@@ -75,6 +75,11 @@ public class AdminController {
         }
         
         model.addAttribute("members", members);
+
+        // ADD THIS - Get actual blocks from database
+        List<String> blocks = blockService.getAllBlockNames();
+        model.addAttribute("blocks", blocks);
+        
         return "admin/members";
     }
 

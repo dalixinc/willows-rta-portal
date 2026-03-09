@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BlockService {
@@ -106,6 +107,21 @@ public class BlockService {
         }
 
         return statsList;
+    }
+
+    /**
+     * Ger all block names in a List<String>
+     * 
+     * @param block
+     * @return 
+     */
+    public List<String> getAllBlockNames() {
+        return blockRepository.findAll()
+                .stream()
+                .map(Block::getShortName)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     /**

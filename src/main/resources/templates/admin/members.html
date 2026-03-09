@@ -49,7 +49,7 @@
                 
                 <form action="/admin/members/export" method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
                     
-                    <!-- Filter by Block -->
+                    <!-- Filter by Block 
                     <div class="form-group" style="margin: 0;">
                         <label for="exportBlock" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Filter by Block</label>
                         <select name="block" id="exportBlock" class="input-field" style="width: 100%; padding: 8px; border-radius: 5px; border: none;">
@@ -58,6 +58,15 @@
                             <option value="Field">Field House</option>
                             <option value="Brook">Brook House</option>
                             <option value="Spinney">Spinney House</option>
+                        </select>
+                    </div> -->
+
+                    <!-- Filter by Block -->
+                    <div class="form-group" style="margin: 0;">
+                        <label for="exportBlock" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Filter by Block</label>
+                        <select name="block" id="exportBlock" class="input-field" style="width: 100%; padding: 8px; border-radius: 5px; border: none;">
+                            <option value="">All Blocks</option>
+                            <option th:each="block : ${blocks}" th:value="${block}" th:text="${block}"></option>
                         </select>
                     </div>
                     
