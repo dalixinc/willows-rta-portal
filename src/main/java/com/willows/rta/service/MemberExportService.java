@@ -11,6 +11,10 @@ import java.io.PrintWriter;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.awt.HeadlessException;
+
 /**
  * Service for exporting member data to various formats
  */
@@ -18,6 +22,7 @@ import java.util.List;
 public class MemberExportService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final Logger logger = LoggerFactory.getLogger(MemberExportService.class);
 
     /**
      * Export members to CSV format
@@ -106,8 +111,24 @@ public class MemberExportService {
         }
 
         // Auto-size columns
+
+        boolean headless = false;
+
         for (int i = 0; i < headers.length; i++) {
-            sheet.autoSizeColumn(i);
+            // - sheet.autoSizeColumn(i);   // This crashes on railway (headless server) 
+
+            // Try to auto-size, but catch if headless
+            try {
+                sheet.autoSizeColumn(i);
+                 if (i == 0) {  // Only log once
+                    logger.debug("AutoSize successful for column " + i + " (desktop environment)" );
+                }   
+            } catch (HeadlessException | UnsatisfiedLinkError e) {
+                // Headless server - use fixed width instead
+                logger.info("AutoSize not available (headless), using fixed width");
+                sheet.setColumnWidth(i, 20 * 256);
+            }
+
             // Add a bit of padding
             sheet.setColumnWidth(i, sheet.getColumnWidth(i) + 500);
         }
