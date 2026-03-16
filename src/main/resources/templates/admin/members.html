@@ -178,6 +178,116 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination Controls -->
+            <div class="pagination-container" style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                
+                <!-- Items info -->
+                <div class="pagination-info">
+                    <span th:if="${totalItems > 0}">
+                        Showing 
+                        <strong th:text="${currentPage * pageSize + 1}">1</strong>
+                        to 
+                        <!-- strong th:text="${#numbers.formatInteger(T(java.lang.Math).min((currentPage + 1) * pageSize, totalItems), 0)}">20</strong -->
+                        <strong th:text="${(currentPage + 1) * pageSize < totalItems ? (currentPage + 1) * pageSize : totalItems}">20</strong>
+                        of 
+                        <strong th:text="${totalItems}">89</strong>
+                        members
+                    </span>
+                    <span th:if="${totalItems == 0}">No members found</span>
+                </div>
+                
+                <!-- Page size selector -->
+                <div class="page-size-selector">
+                    <label for="pageSize">Items per page:</label>
+                    <select id="pageSize" class="form-select form-select-sm" style="width: auto; display: inline-block;" 
+                            onchange="changePageSize(this.value)">
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                        <option value="100" th:selected="${pageSize == 100}">100</option>
+                        <option value="1000" th:selected="${pageSize >= 1000}">All</option>
+                    </select>
+                </div>
+                
+                <!-- Page navigation -->
+                <nav aria-label="Member pagination" th:if="${totalPages > 1}">
+                    <ul class="pagination mb-0">
+                        <!-- First page -->
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/members(page=0, size=${pageSize})}" 
+                            aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        
+                        <!-- Previous page -->
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/members(page=${currentPage - 1}, size=${pageSize})}" 
+                            aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        
+                        <!-- Page numbers (show current and nearby pages) -->
+                        <li class="page-item" 
+                            th:each="pageNum : ${#numbers.sequence(T(java.lang.Math).max(0, currentPage - 2), 
+                                                                    T(java.lang.Math).min(totalPages - 1, currentPage + 2))}"
+                            th:classappend="${pageNum == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/members(page=${pageNum}, size=${pageSize})}" 
+                            th:text="${pageNum + 1}">1</a>
+                        </li>
+                        
+                        <!-- Next page -->
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/members(page=${currentPage + 1}, size=${pageSize})}" 
+                            aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        
+                        <!-- Last page -->
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/members(page=${totalPages - 1}, size=${pageSize})}" 
+                            aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- JavaScript for page size change -->
+            <script>
+            function changePageSize(newSize) {
+                const url = new URL(window.location);
+                url.searchParams.set('size', newSize);
+                url.searchParams.set('page', '0'); // Reset to first page when changing size
+                window.location.href = url.toString();
+            }
+            </script>
+
+            <!-- Optional: Add some CSS for better mobile responsiveness -->
+            <style>
+            @media (max-width: 768px) {
+                .pagination-container {
+                    flex-direction: column;
+                    align-items: flex-start !important;
+                }
+                
+                .pagination-info,
+                .page-size-selector {
+                    width: 100%;
+                    margin-bottom: 0.5rem;
+                }
+                
+                nav[aria-label="Member pagination"] {
+                    width: 100%;
+                    overflow-x: auto;
+                }
+            }
+            </style>
+
         </div>
 
         <footer class="site-footer">

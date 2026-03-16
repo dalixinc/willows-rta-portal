@@ -10,9 +10,12 @@ import com.willows.rta.service.UserService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.aspectj.apache.bcel.classfile.Module.Export;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,9 +59,15 @@ public class AdminController {
 
     // View all members
     @GetMapping("/members")
-    public String viewAllMembers(Model model, Authentication authentication) {
-    model.addAttribute("username", authentication.getName());  // ← ADD THIS
-        List<Member> members = memberService.getAllMembers();
+    public String viewAllMembers(Model model, 
+                                Authentication authentication,
+                                @PageableDefault(size = 20, sort = "fullName") Pageable pageable) {
+        
+        model.addAttribute("username", authentication.getName());
+        
+        // Get paginated members
+        Page<Member> memberPage = memberService.findAll(pageable);
+        List<Member> members = memberPage.getContent();
         
         // Populate user status for each member
         for (Member member : members) {
@@ -74,9 +83,15 @@ public class AdminController {
             }
         }
         
+        // Add members and pagination info to model
         model.addAttribute("members", members);
-
-        // ADD THIS - Get actual blocks from database
+        model.addAttribute("memberPage", memberPage);
+        model.addAttribute("currentPage", memberPage.getNumber());
+        model.addAttribute("totalPages", memberPage.getTotalPages());
+        model.addAttribute("totalItems", memberPage.getTotalElements());
+        model.addAttribute("pageSize", pageable.getPageSize());
+        
+        // Get blocks from database
         List<String> blocks = blockService.getAllBlockNames();
         model.addAttribute("blocks", blocks);
         

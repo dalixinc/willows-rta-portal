@@ -5,6 +5,9 @@ import com.willows.rta.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -154,5 +157,15 @@ public class MemberService {
                 return true;
             })
             .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Retrieves all members with pagination.
+     * 
+     * @param pageable the pagination parameters
+     * @return a page of members
+     */
+    public Page<Member> findAll(Pageable pageable) {
+        return memberRepository.findAll(pageable);
     }
 }
