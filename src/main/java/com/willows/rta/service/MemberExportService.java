@@ -1,19 +1,27 @@
 package com.willows.rta.service;
 
-import com.willows.rta.model.Member;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.stereotype.Service;
-
+import java.awt.HeadlessException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.awt.HeadlessException;
+import org.springframework.stereotype.Service;
+
+import com.willows.rta.model.Member;
 
 /**
  * Service for exporting member data to various formats
@@ -123,7 +131,7 @@ public class MemberExportService {
                  if (i == 0) {  // Only log once
                     logger.debug("AutoSize successful for column " + i + " (desktop environment)" );
                 }   
-            } catch (HeadlessException | UnsatisfiedLinkError e) {
+            } catch (HeadlessException | UnsatisfiedLinkError | NoClassDefFoundError e) {
                 // Headless server - use fixed width instead
                 logger.info("AutoSize not available (headless), using fixed width");
                 sheet.setColumnWidth(i, 20 * 256);
