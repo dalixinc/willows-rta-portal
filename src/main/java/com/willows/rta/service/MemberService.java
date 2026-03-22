@@ -123,6 +123,11 @@ public class MemberService {
         return memberRepository.findByMembershipStatus(status);
     }
 
+    // Get members by status with pagination (NEW METHOD)
+    public Page<Member> getMembersByStatusPaginated(String status, Pageable pageable) {
+        return memberRepository.findByMembershipStatus(status, pageable);
+    }
+
    // Get filtered members for export
     public List<Member> getFilteredMembers(String block, String status, Boolean hasAccount) {
         List<Member> allMembers = memberRepository.findAll();

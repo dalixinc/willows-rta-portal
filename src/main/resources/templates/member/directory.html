@@ -5,6 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Members Directory - The Willows RTA</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .pagination a,
+        .pagination span {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            min-width: 40px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .pagination a:hover {
+            background-color: #f0f0f0;
+            border-color: #999;
+        }
+        
+        .pagination .current-page {
+            background-color: #2c5282;
+            color: white;
+            border-color: #2c5282;
+            font-weight: bold;
+        }
+        
+        .pagination .disabled {
+            color: #ccc;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .pagination .page-info {
+            border: none;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .pagination {
+                font-size: 0.9rem;
+            }
+            
+            .pagination a,
+            .pagination span {
+                padding: 6px 10px;
+                min-width: 35px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -129,9 +188,55 @@
                 </div>
             </div>
 
+            <!-- Pagination Controls -->
+            <div th:if="${totalPages > 1}" class="pagination">
+                <!-- Previous Button -->
+                <a th:href="@{/member/directory(page=${currentPage - 1})}" 
+                   th:classappend="${currentPage == 0} ? 'disabled'"
+                   th:unless="${currentPage == 0}">
+                    ← Previous
+                </a>
+                <span th:if="${currentPage == 0}" class="disabled">← Previous</span>
+                
+                <!-- Page Numbers -->
+                <th:block th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
+                    <!-- Show first page, last page, current page, and 2 pages on either side -->
+                    <th:block th:if="${pageNum == 0 || 
+                                       pageNum == totalPages - 1 || 
+                                       pageNum == currentPage || 
+                                       (pageNum >= currentPage - 2 && pageNum <= currentPage + 2)}">
+                        
+                        <!-- Current Page -->
+                        <span th:if="${pageNum == currentPage}" class="current-page" th:text="${pageNum + 1}">1</span>
+                        
+                        <!-- Other Pages -->
+                        <a th:unless="${pageNum == currentPage}" 
+                           th:href="@{/member/directory(page=${pageNum})}" 
+                           th:text="${pageNum + 1}">1</a>
+                    </th:block>
+                    
+                    <!-- Ellipsis for skipped pages -->
+                    <span th:if="${(pageNum == 1 && currentPage > 3) || 
+                                  (pageNum == totalPages - 2 && currentPage < totalPages - 4)}" 
+                          class="page-info">...</span>
+                </th:block>
+                
+                <!-- Next Button -->
+                <a th:href="@{/member/directory(page=${currentPage + 1})}" 
+                   th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                   th:unless="${currentPage == totalPages - 1}">
+                    Next →
+                </a>
+                <span th:if="${currentPage == totalPages - 1}" class="disabled">Next →</span>
+            </div>
+
             <div class="directory-footer">
                 <p class="text-muted">
-                    <small>Showing <strong th:text="${members.size()}">0</strong> active members. 
+                    <small>Showing <strong th:text="${members.size()}">0</strong> of 
+                    <strong th:text="${totalMembers}">0</strong> active members
+                    <span th:if="${totalPages > 1}">
+                        (Page <strong th:text="${currentPage + 1}">1</strong> of <strong th:text="${totalPages}">1</strong>)
+                    </span>. 
                     To update your contact details, please contact the committee.</small>
                 </p>
             </div>

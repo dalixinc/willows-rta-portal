@@ -1,6 +1,8 @@
 package com.willows.rta.repository;
 
 import com.willows.rta.model.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +17,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
     
     List<Member> findByMembershipStatus(String status);
+
+     // Paginated version for directory
+    Page<Member> findByMembershipStatus(String status, Pageable pageable);
     
     List<Member> findByFlatNumber(String flatNumber);
     
