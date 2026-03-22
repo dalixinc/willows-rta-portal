@@ -37,8 +37,9 @@ public class Member {
     @Column(nullable = false)
     private boolean isLeaseholder;
 
+    @NotBlank(message = "Preferred communication method is required")
     @Column(nullable = false)
-    private String preferredCommunication; // EMAIL, PHONE, POST
+    private String preferredCommunication = "EMAIL"; // EMAIL, PHONE, POST
 
     @Column(nullable = false)
     private boolean consentGiven = false;

@@ -52,6 +52,42 @@
             font-size: 0.9rem;
         }
         
+        /* Page Size Selector */
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .page-size-selector label {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .page-size-selector select {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        
+        .page-size-selector select:hover {
+            border-color: #999;
+        }
+        
+        .page-size-selector select:focus {
+            outline: none;
+            border-color: #2c5282;
+            box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
+        }
+        
         @media (max-width: 768px) {
             .pagination {
                 font-size: 0.9rem;
@@ -61,6 +97,12 @@
             .pagination span {
                 padding: 6px 10px;
                 min-width: 35px;
+            }
+            
+            .page-size-selector {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
             }
         }
     </style>
@@ -109,6 +151,17 @@
             <div class="privacy-notice">
                 <p><small>🔒 <strong>Privacy Notice:</strong> This directory shows limited contact information for verified members only. 
                 Phone numbers and full addresses are kept private.</small></p>
+            </div>
+
+            <!-- Page Size Selector -->
+            <div class="page-size-selector">
+                <label for="pageSizeSelect">Show:</label>
+                <select id="pageSizeSelect" th:value="${pageSize}" onchange="changePageSize(this.value)">
+                    <option value="10" th:selected="${pageSize == 10}">10 members per page</option>
+                    <option value="20" th:selected="${pageSize == 20}">20 members per page</option>
+                    <option value="50" th:selected="${pageSize == 50}">50 members per page</option>
+                    <option value="100" th:selected="${pageSize == 100}">100 members per page</option>
+                </select>
             </div>
 
             <div class="members-directory-table">
@@ -191,7 +244,7 @@
             <!-- Pagination Controls -->
             <div th:if="${totalPages > 1}" class="pagination">
                 <!-- Previous Button -->
-                <a th:href="@{/member/directory(page=${currentPage - 1})}" 
+                <a th:href="@{/member/directory(page=${currentPage - 1}, pageSize=${pageSize})}" 
                    th:classappend="${currentPage == 0} ? 'disabled'"
                    th:unless="${currentPage == 0}">
                     ← Previous
@@ -211,7 +264,7 @@
                         
                         <!-- Other Pages -->
                         <a th:unless="${pageNum == currentPage}" 
-                           th:href="@{/member/directory(page=${pageNum})}" 
+                           th:href="@{/member/directory(page=${pageNum}, pageSize=${pageSize})}" 
                            th:text="${pageNum + 1}">1</a>
                     </th:block>
                     
@@ -222,7 +275,7 @@
                 </th:block>
                 
                 <!-- Next Button -->
-                <a th:href="@{/member/directory(page=${currentPage + 1})}" 
+                <a th:href="@{/member/directory(page=${currentPage + 1}, pageSize=${pageSize})}" 
                    th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
                    th:unless="${currentPage == totalPages - 1}">
                     Next →
@@ -246,5 +299,21 @@
             <p>&copy; 2026 The Willows RTA</p>
         </footer>
     </div>
+
+    <script>
+        function changePageSize(newSize) {
+            // Get current URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Update page size
+            urlParams.set('pageSize', newSize);
+            
+            // Reset to page 0 when changing page size
+            urlParams.set('page', '0');
+            
+            // Redirect with new parameters
+            window.location.href = '/member/directory?' + urlParams.toString();
+        }
+    </script>
 </body>
 </html>

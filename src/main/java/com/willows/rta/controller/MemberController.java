@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MemberController {
 
     private final MemberService memberService;
-    
-    private static final int PAGE_SIZE = 20; // 20 members per page
 
     @Autowired
     public MemberController(MemberService memberService) {
@@ -43,6 +41,7 @@ public class MemberController {
     @GetMapping("/directory")
     public String viewDirectory(
             @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int pageSize,
             Model model, 
             Authentication authentication) {
         
@@ -53,8 +52,13 @@ public class MemberController {
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
         model.addAttribute("isAdmin", isAdmin);
         
+        // Validate page size (must be one of the allowed values)
+        if (pageSize != 10 && pageSize != 20 && pageSize != 50 && pageSize != 100) {
+            pageSize = 20; // Default to 20 if invalid value provided
+        }
+        
         // Create pageable object - sort by flatNumber for easy navigation
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("flatNumber").ascending());
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("flatNumber").ascending());
         
         // Get paginated active members
         Page<Member> memberPage = memberService.getMembersByStatusPaginated("ACTIVE", pageable);
@@ -64,6 +68,7 @@ public class MemberController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", memberPage.getTotalPages());
         model.addAttribute("totalMembers", memberPage.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
         
         return "member/directory";
     }
