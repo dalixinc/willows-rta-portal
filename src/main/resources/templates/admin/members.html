@@ -267,6 +267,120 @@
             }
             </script>
 
+            <script>
+                // Sortable Table Headers
+                function makeSortable() {
+                    const tables = document.querySelectorAll('table');
+                    
+                    tables.forEach(table => {
+                        const headers = table.querySelectorAll('th');
+                        const tbody = table.querySelector('tbody');
+                        
+                        if (!tbody) return;
+                        
+                        let currentSort = { column: -1, ascending: true };
+                        
+                        headers.forEach((header, index) => {
+                            const headerText = header.textContent.trim();
+                            if (headerText === 'Actions' || headerText === '') return;
+                            
+                            header.style.cursor = 'pointer';
+                            header.style.userSelect = 'none';
+                            header.style.position = 'relative';
+                            header.style.paddingRight = '25px';
+                            
+                            header.addEventListener('mouseenter', () => {
+                                if (currentSort.column !== index) {
+                                    header.style.backgroundColor = 'rgba(0,0,0,0.05)';
+                                }
+                            });
+                            
+                            header.addEventListener('mouseleave', () => {
+                                if (currentSort.column !== index) {
+                                    header.style.backgroundColor = '';
+                                }
+                            });
+                            
+                            header.addEventListener('click', () => {
+                                const ascending = (currentSort.column === index) ? !currentSort.ascending : true;
+                                sortTable(tbody, index, ascending);
+                                updateSortIndicators(headers, index, ascending);
+                                currentSort = { column: index, ascending };
+                            });
+                        });
+                    });
+                }
+
+                function sortTable(tbody, columnIndex, ascending) {
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    
+                    rows.sort((a, b) => {
+                        const aCell = a.cells[columnIndex];
+                        const bCell = b.cells[columnIndex];
+                        
+                        if (!aCell || !bCell) return 0;
+                        
+                        let aText = aCell.textContent.trim();
+                        let bText = bCell.textContent.trim();
+                        
+                        const aNum = parseFloat(aText);
+                        const bNum = parseFloat(bText);
+                        
+                        let comparison = 0;
+                        
+                        if (!isNaN(aNum) && !isNaN(bNum)) {
+                            comparison = aNum - bNum;
+                        } else if (isDate(aText) && isDate(bText)) {
+                            comparison = new Date(aText) - new Date(bText);
+                        } else {
+                            comparison = aText.localeCompare(bText, undefined, { sensitivity: 'base' });
+                        }
+                        
+                        return ascending ? comparison : -comparison;
+                    });
+                    
+                    rows.forEach(row => tbody.appendChild(row));
+                }
+
+                function isDate(str) {
+                    const datePatterns = [
+                        /^\d{4}-\d{2}-\d{2}/,
+                        /^\d{2}\/\d{2}\/\d{4}/,
+                        /^\d{2}-\d{2}-\d{4}/,
+                        /^\w{3}\s+\d{1,2},?\s+\d{4}/
+                    ];
+                    return datePatterns.some(pattern => pattern.test(str));
+                }
+
+                function updateSortIndicators(headers, activeIndex, ascending) {
+                    headers.forEach((header, index) => {
+                        const existingArrow = header.querySelector('.sort-arrow');
+                        if (existingArrow) existingArrow.remove();
+                        
+                        header.style.backgroundColor = '';
+                        
+                        if (index === activeIndex) {
+                            const arrow = document.createElement('span');
+                            arrow.className = 'sort-arrow';
+                            arrow.textContent = ascending ? ' ▲' : ' ▼';
+                            arrow.style.position = 'absolute';
+                            arrow.style.right = '8px';
+                            arrow.style.fontSize = '0.8em';
+                            arrow.style.color = '#2c5282';
+                            header.appendChild(arrow);
+                            
+                            header.style.backgroundColor = 'rgba(44, 82, 130, 0.1)';
+                        }
+                    });
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', makeSortable);
+                } else {
+                    makeSortable();
+                }
+            </script>
+
             <!-- Optional: Add some CSS for better mobile responsiveness -->
             <style>
             /* Pagination Container */
