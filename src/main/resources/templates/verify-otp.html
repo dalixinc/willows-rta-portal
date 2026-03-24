@@ -34,6 +34,7 @@
                            maxlength="6" 
                            pattern="[0-9]{6}"
                            placeholder="Enter 6-digit code"
+                           style="font-size: 0.9rem;"
                            autocomplete="one-time-code"
                            autofocus>
                     <small class="text-muted">Enter the 6-digit code from your email</small>
@@ -76,6 +77,14 @@
         document.getElementById('otpCode').addEventListener('keypress', function(e) {
             if (e.key && !/[0-9]/.test(e.key)) {
                 e.preventDefault();
+            }
+        });
+
+        // Allow Enter key to submit form
+        document.getElementById('otpCode').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.form.submit();
             }
         });
     </script>

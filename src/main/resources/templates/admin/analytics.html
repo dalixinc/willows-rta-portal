@@ -77,6 +77,10 @@
             </div>
         </header>
 
+        <div class="constitution-actions" style="max-width: 1200px; margin: 0 auto 20px; display: flex; gap: 10px;">
+            <button onclick="window.print()" class="btn btn-info">🖨️ Print/Download PDF</button>
+        </div>
+
         <nav class="admin-nav" th:if="${isAdmin}">
             <a href="/admin/dashboard">Dashboard</a>
             <a href="/admin/members">Members</a>
@@ -102,8 +106,7 @@
             <div class="beta-content">
                 <span class="beta-icon">🧪</span>
                 <span class="beta-text">
-                    <strong>BETA FEATURE:</strong> This analytics system is in testing. 
-                    Member counts are automatically detected from flat numbers and addresses. 
+                    <strong>Analytics Overview:</strong> Member counts are automatically detected from flat numbers and addresses. 
                     Please verify accuracy and report any discrepancies to admin.
                 </span>
                 <button onclick="document.getElementById('betaBanner').style.display='none'" class="beta-close">×</button>
